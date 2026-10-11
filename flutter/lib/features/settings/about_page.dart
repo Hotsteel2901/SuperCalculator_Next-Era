@@ -82,14 +82,14 @@ class AboutPage extends StatelessWidget {
           FeatureCard(
             title: l10n.aboutAuthor,
             icon: Icons.person_outline,
-            child: Column(
+            child: const Column(
               children: <Widget>[
                 _LinkTile(
                   icon: Icons.person_outline,
                   title: '$_authorName · GitHub',
                   url: _githubProfileUrl,
                 ),
-                const Divider(),
+                Divider(),
                 _LinkTile(
                   icon: Icons.person_outline,
                   title: '$_authorName · Codeberg',
@@ -102,14 +102,14 @@ class AboutPage extends StatelessWidget {
           FeatureCard(
             title: l10n.aboutSourceCode,
             icon: Icons.code,
-            child: Column(
+            child: const Column(
               children: <Widget>[
                 _LinkTile(
                   icon: Icons.code,
                   title: 'GitHub',
                   url: _githubRepoUrl,
                 ),
-                const Divider(),
+                Divider(),
                 _LinkTile(
                   icon: Icons.code,
                   title: 'Codeberg',
