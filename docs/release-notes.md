@@ -17,6 +17,9 @@ source of truth.
 - Added complex, distribution, probability/calendar, number-theory, finance,
   custom-function, dense-matrix and sparse-COO workbench slices behind the
   replaceable backend contract.
+- Added a cross-platform Settings page (system/light/dark theme, Material You
+  dynamic-color switch, Expressive intensity) and an About page with the author,
+  GitHub and Codeberg repositories and the AGPL-3.0-or-later license.
 - Added boundary/golden vectors for ODE convergence, function tables, regression and
   distribution edge cases.
 - Updated English/Chinese README, feature manifest and migration reports to distinguish

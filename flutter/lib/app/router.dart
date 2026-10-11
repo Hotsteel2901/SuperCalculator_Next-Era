@@ -9,6 +9,8 @@ import '../features/history/history_page.dart';
 import '../features/linear_algebra/linear_algebra_page.dart';
 import '../features/ode/ode_page.dart';
 import '../features/plotting/plot_page.dart';
+import '../features/settings/about_page.dart';
+import '../features/settings/settings_page.dart';
 import '../features/signals/signals_page.dart';
 import '../features/statistics/statistics_page.dart';
 import '../features/tools/advanced_tools_page.dart';
@@ -44,6 +46,8 @@ final GoRouter appRouter = GoRouter(
           builder: (_, _) => const AdvancedToolsPage(),
         ),
         GoRoute(path: '/history', builder: (_, _) => const HistoryPage()),
+        GoRoute(path: '/settings', builder: (_, _) => const SettingsPage()),
+        GoRoute(path: '/settings/about', builder: (_, _) => const AboutPage()),
       ],
     ),
   ],

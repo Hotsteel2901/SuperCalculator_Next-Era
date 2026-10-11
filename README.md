@@ -15,6 +15,11 @@ package metadata are **SuperCalculator - Next Era**.
 - Material 3 Expressive-compatible theme tokens, light/dark themes, reduced-motion
   handling, responsive NavigationRail/NavigationBar layouts and English/Simplified
   Chinese localization.
+- A Settings page for the whole shell: system/light/dark theme selection, a
+  Material You dynamic-color (Monet) switch that reports unsupported platforms,
+  selectable Expressive intensity (Foundational/Excellent/Transformative) and an
+  About page with the author, both GitHub and Codeberg repositories and the
+  AGPL-3.0-or-later license.
 - Riverpod state management, go_router navigation and a `CalcBackend` contract.
   Native `dart:ffi` is preferred when the ABI library is present; Web and unsupported
   targets use the deterministic Dart fallback.
@@ -121,6 +126,11 @@ routing/adapter change and keep the previous entry point; do not delete the lega
 calculation implementation. See [`docs/rollback.md`](docs/rollback.md).
 
 ## License and contributions
+
+SuperCalculator - Next Era is released under the GNU Affero General Public License
+v3.0 or later (AGPL-3.0-or-later). See [`LICENSE`](LICENSE). Source code is hosted on
+[GitHub](https://github.com/Hotsteel2901/SuperCalculator_Next-Era) and
+[Codeberg](https://codeberg.org/hotsteel/SuperCalculator_Next-Era).
 
 Keep numerical changes covered by deterministic vectors, validate finite/error
 boundaries, and document any new dependency or platform assumption before merging.

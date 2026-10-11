@@ -325,6 +325,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Function plot for {expression}, with {count} finite samples.'**
   String accessibilityPlotSummary(Object count, Object expression);
+
+  /// No description provided for @settingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme, Material You dynamic color and expressive intensity.'**
+  String get settingsSubtitle;
+
+  /// No description provided for @appearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearance;
+
+  /// No description provided for @themeMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get themeMode;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @monetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Material You dynamic color'**
+  String get monetTitle;
+
+  /// No description provided for @monetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Derive the palette from your wallpaper and system accent color.'**
+  String get monetDescription;
+
+  /// No description provided for @monetUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available on this device.'**
+  String get monetUnavailable;
+
+  /// No description provided for @expressiveIntensity.
+  ///
+  /// In en, this message translates to:
+  /// **'Expressive intensity'**
+  String get expressiveIntensity;
+
+  /// No description provided for @intensityFoundational.
+  ///
+  /// In en, this message translates to:
+  /// **'Foundational'**
+  String get intensityFoundational;
+
+  /// No description provided for @intensityExcellent.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent'**
+  String get intensityExcellent;
+
+  /// No description provided for @intensityTransformative.
+  ///
+  /// In en, this message translates to:
+  /// **'Transformative'**
+  String get intensityTransformative;
+
+  /// No description provided for @intensityFoundationalDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Clarity and familiarity first.'**
+  String get intensityFoundationalDescription;
+
+  /// No description provided for @intensityExcellentDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Stronger color, type and shape while preserving established patterns.'**
+  String get intensityExcellentDescription;
+
+  /// No description provided for @intensityTransformativeDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold shapes and motion for hero moments, with the same accessibility contract.'**
+  String get intensityTransformativeDescription;
+
+  /// No description provided for @aboutTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'A cross-platform scientific calculator and plotting workbench.'**
+  String get aboutTagline;
+
+  /// No description provided for @aboutAuthor.
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get aboutAuthor;
+
+  /// No description provided for @aboutSourceCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code'**
+  String get aboutSourceCode;
+
+  /// No description provided for @aboutLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'License'**
+  String get aboutLicense;
+
+  /// No description provided for @licenseName.
+  ///
+  /// In en, this message translates to:
+  /// **'GNU Affero General Public License v3.0 or later'**
+  String get licenseName;
+
+  /// No description provided for @licenseView.
+  ///
+  /// In en, this message translates to:
+  /// **'View license'**
+  String get licenseView;
+
+  /// No description provided for @aboutBuiltWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Built with Flutter, Riverpod and a replaceable C/Dart computation backend.'**
+  String get aboutBuiltWith;
+
+  /// No description provided for @copyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get copyLink;
+
+  /// No description provided for @linkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied to the clipboard.'**
+  String get linkCopied;
+
+  /// No description provided for @linkOpenFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open the link; it was copied instead.'**
+  String get linkOpenFailed;
 }
 
 class _AppLocalizationsDelegate

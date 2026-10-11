@@ -131,4 +131,90 @@ class AppLocalizationsEn extends AppLocalizations {
   String accessibilityPlotSummary(Object count, Object expression) {
     return 'Function plot for $expression, with $count finite samples.';
   }
+
+  @override
+  String get settingsSubtitle =>
+      'Theme, Material You dynamic color and expressive intensity.';
+
+  @override
+  String get appearance => 'Appearance';
+
+  @override
+  String get themeMode => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get monetTitle => 'Material You dynamic color';
+
+  @override
+  String get monetDescription =>
+      'Derive the palette from your wallpaper and system accent color.';
+
+  @override
+  String get monetUnavailable => 'Not available on this device.';
+
+  @override
+  String get expressiveIntensity => 'Expressive intensity';
+
+  @override
+  String get intensityFoundational => 'Foundational';
+
+  @override
+  String get intensityExcellent => 'Excellent';
+
+  @override
+  String get intensityTransformative => 'Transformative';
+
+  @override
+  String get intensityFoundationalDescription =>
+      'Clarity and familiarity first.';
+
+  @override
+  String get intensityExcellentDescription =>
+      'Stronger color, type and shape while preserving established patterns.';
+
+  @override
+  String get intensityTransformativeDescription =>
+      'Bold shapes and motion for hero moments, with the same accessibility contract.';
+
+  @override
+  String get aboutTagline =>
+      'A cross-platform scientific calculator and plotting workbench.';
+
+  @override
+  String get aboutAuthor => 'Author';
+
+  @override
+  String get aboutSourceCode => 'Source code';
+
+  @override
+  String get aboutLicense => 'License';
+
+  @override
+  String get licenseName => 'GNU Affero General Public License v3.0 or later';
+
+  @override
+  String get licenseView => 'View license';
+
+  @override
+  String get aboutBuiltWith =>
+      'Built with Flutter, Riverpod and a replaceable C/Dart computation backend.';
+
+  @override
+  String get copyLink => 'Copy link';
+
+  @override
+  String get linkCopied => 'Link copied to the clipboard.';
+
+  @override
+  String get linkOpenFailed =>
+      'Could not open the link; it was copied instead.';
 }

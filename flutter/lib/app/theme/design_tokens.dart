@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/settings/app_settings.dart';
+
 /// App-owned tokens for the SuperCalculator expressive layer.
 ///
 /// Flutter stable provides Material 3 and expressive color scheme generation,
@@ -37,6 +39,68 @@ class SuperCalcDesignTokens extends ThemeExtension<SuperCalcDesignTokens> {
       controlMinHeight = 48,
       fastMotion = const Duration(milliseconds: 120),
       standardMotion = const Duration(milliseconds: 260);
+
+  /// Foundational intensity: clarity and familiarity first, with restrained
+  /// corners and slightly quicker motion.
+  const SuperCalcDesignTokens.foundational()
+    : compactBreakpoint = 600,
+      mediumBreakpoint = 840,
+      expandedBreakpoint = 1200,
+      pagePadding = 24,
+      cardGap = 16,
+      controlGap = 12,
+      plotMinHeight = 360,
+      cornerSmall = 8,
+      cornerMedium = 14,
+      cornerLarge = 20,
+      controlMinHeight = 48,
+      fastMotion = const Duration(milliseconds: 110),
+      standardMotion = const Duration(milliseconds: 220);
+
+  /// Excellent intensity: the expressive baseline, strengthening color, type
+  /// and shape while preserving established patterns.
+  const SuperCalcDesignTokens.excellent()
+    : compactBreakpoint = 600,
+      mediumBreakpoint = 840,
+      expandedBreakpoint = 1200,
+      pagePadding = 24,
+      cardGap = 16,
+      controlGap = 12,
+      plotMinHeight = 360,
+      cornerSmall = 12,
+      cornerMedium = 20,
+      cornerLarge = 28,
+      controlMinHeight = 48,
+      fastMotion = const Duration(milliseconds: 120),
+      standardMotion = const Duration(milliseconds: 260);
+
+  /// Transformative intensity: bolder shapes and motion for hero moments while
+  /// keeping the same usability and accessibility contract.
+  const SuperCalcDesignTokens.transformative()
+    : compactBreakpoint = 600,
+      mediumBreakpoint = 840,
+      expandedBreakpoint = 1200,
+      pagePadding = 24,
+      cardGap = 16,
+      controlGap = 12,
+      plotMinHeight = 360,
+      cornerSmall = 16,
+      cornerMedium = 26,
+      cornerLarge = 36,
+      controlMinHeight = 48,
+      fastMotion = const Duration(milliseconds: 140),
+      standardMotion = const Duration(milliseconds: 300);
+
+  /// Resolves the token set for an [ExpressiveIntensity] level.
+  static SuperCalcDesignTokens forIntensity(ExpressiveIntensity intensity) {
+    return switch (intensity) {
+      ExpressiveIntensity.foundational =>
+        const SuperCalcDesignTokens.foundational(),
+      ExpressiveIntensity.excellent => const SuperCalcDesignTokens.excellent(),
+      ExpressiveIntensity.transformative =>
+        const SuperCalcDesignTokens.transformative(),
+    };
+  }
 
   final double compactBreakpoint;
   final double mediumBreakpoint;

@@ -130,4 +130,83 @@ class AppLocalizationsZh extends AppLocalizations {
   String accessibilityPlotSummary(Object count, Object expression) {
     return '表达式 $expression 的函数图，共有 $count 个有效采样点。';
   }
+
+  @override
+  String get settingsSubtitle => '主题、Material You 动态取色与 Expressive 强度。';
+
+  @override
+  String get appearance => '外观';
+
+  @override
+  String get themeMode => '主题';
+
+  @override
+  String get themeSystem => '跟随系统';
+
+  @override
+  String get themeLight => '浅色';
+
+  @override
+  String get themeDark => '深色';
+
+  @override
+  String get monetTitle => 'Material You 动态取色';
+
+  @override
+  String get monetDescription => '从壁纸与系统强调色派生配色。';
+
+  @override
+  String get monetUnavailable => '当前设备不支持。';
+
+  @override
+  String get expressiveIntensity => 'Expressive 强度';
+
+  @override
+  String get intensityFoundational => '基础';
+
+  @override
+  String get intensityExcellent => '出色';
+
+  @override
+  String get intensityTransformative => '变革';
+
+  @override
+  String get intensityFoundationalDescription => '清晰与熟悉优先。';
+
+  @override
+  String get intensityExcellentDescription => '在保留既有模式的前提下强化色彩、字体与形状。';
+
+  @override
+  String get intensityTransformativeDescription =>
+      '为高光时刻采用更大胆的形状与动效，同时保持同样的无障碍契约。';
+
+  @override
+  String get aboutTagline => '跨平台科学计算与函数绘图工作台。';
+
+  @override
+  String get aboutAuthor => '作者';
+
+  @override
+  String get aboutSourceCode => '源代码';
+
+  @override
+  String get aboutLicense => '许可';
+
+  @override
+  String get licenseName => 'GNU Affero 通用公共许可证 v3.0 或更高版本';
+
+  @override
+  String get licenseView => '查看许可';
+
+  @override
+  String get aboutBuiltWith => '使用 Flutter、Riverpod 与可替换的 C/Dart 计算后端构建。';
+
+  @override
+  String get copyLink => '复制链接';
+
+  @override
+  String get linkCopied => '链接已复制到剪贴板。';
+
+  @override
+  String get linkOpenFailed => '无法打开链接，已改为复制。';
 }

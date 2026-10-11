@@ -15,6 +15,12 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tokens = SuperCalcDesignTokens.of(context);
+    final settingsDestination = _Destination(
+      '/settings',
+      Icons.settings_outlined,
+      Icons.settings,
+      l10n.settings,
+    );
     final destinations = <_Destination>[
       _Destination('/home', Icons.home_outlined, Icons.home, l10n.home),
       _Destination(
@@ -78,10 +84,11 @@ class AppShell extends StatelessWidget {
         Icons.history,
         nextEraText(context, 'History', '历史'),
       ),
+      settingsDestination,
     ];
     final compactDestinations = <_Destination>[
       ...destinations.take(4),
-      destinations.last,
+      settingsDestination,
     ];
     final selected = _selectedIndex(location, destinations);
     final compactSelected = _selectedIndex(location, compactDestinations);

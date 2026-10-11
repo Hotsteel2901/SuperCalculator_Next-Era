@@ -1,20 +1,37 @@
 import 'package:flutter/material.dart';
 
+import '../../core/settings/app_settings.dart';
 import 'design_tokens.dart';
 
-ThemeData buildAppTheme(Brightness brightness) {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF536DDE),
-    brightness: brightness,
-    dynamicSchemeVariant: DynamicSchemeVariant.expressive,
-  );
-  const tokens = SuperCalcDesignTokens.defaults();
+/// Seed color used when Material You dynamic color (Monet) is unavailable or
+/// disabled.
+const Color superCalcSeedColor = Color(0xFF536DDE);
+
+/// Builds the Material 3 Expressive theme for a given [brightness].
+///
+/// When [colorScheme] is supplied (for example from Material You dynamic
+/// color), it is used verbatim. Otherwise the scheme is generated from
+/// [superCalcSeedColor] using the variant that matches [intensity]. The
+/// [intensity] also selects the shape and motion tokens.
+ThemeData buildAppTheme(
+  Brightness brightness, {
+  ColorScheme? colorScheme,
+  ExpressiveIntensity intensity = ExpressiveIntensity.excellent,
+}) {
+  final scheme =
+      colorScheme ??
+      ColorScheme.fromSeed(
+        seedColor: superCalcSeedColor,
+        brightness: brightness,
+        dynamicSchemeVariant: _schemeVariant(intensity),
+      );
+  final tokens = SuperCalcDesignTokens.forIntensity(intensity);
 
   return ThemeData(
     useMaterial3: true,
     brightness: brightness,
     colorScheme: scheme,
-    extensions: const <ThemeExtension<dynamic>>[tokens],
+    extensions: <ThemeExtension<dynamic>>[tokens],
     visualDensity: VisualDensity.standard,
     scaffoldBackgroundColor: scheme.surface,
     inputDecorationTheme: InputDecorationTheme(
@@ -69,4 +86,12 @@ ThemeData buildAppTheme(Brightness brightness) {
       indicatorColor: scheme.secondaryContainer,
     ),
   );
+}
+
+DynamicSchemeVariant _schemeVariant(ExpressiveIntensity intensity) {
+  return switch (intensity) {
+    ExpressiveIntensity.foundational => DynamicSchemeVariant.tonalSpot,
+    ExpressiveIntensity.excellent => DynamicSchemeVariant.expressive,
+    ExpressiveIntensity.transformative => DynamicSchemeVariant.vibrant,
+  };
 }

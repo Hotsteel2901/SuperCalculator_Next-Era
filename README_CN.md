@@ -13,6 +13,9 @@ SuperCalculator 正在迁移为一个统一的、空安全的 Flutter 应用，�
 
 - Material 3 Expressive 兼容的主题 token、明暗主题、减少动态效果处理、响应式
   NavigationRail/NavigationBar 布局，以及英文/简体中文本地化。
+- 全端设置页面：系统/浅色/深色主题选择、Material You 动态取色（Monet）开关
+  （不支持时会说明）、可选 Expressive 强度（基础/出色/变革），以及包含作者、
+  GitHub 与 Codeberg 仓库地址和 AGPL-3.0-or-later 许可的关于页面。
 - Riverpod 状态管理、go_router 路由和 `CalcBackend` 可替换后端契约。有可用 ABI
   动态库时优先使用 `dart:ffi`；Web 和不支持 FFI 的目标使用确定性的 Dart fallback。
 - 表达式计算、函数和多曲线绘图、参数/极坐标/隐式采样、曲面/等高线/方向场/向量
@@ -103,7 +106,12 @@ ABI 冒烟脚本和功能清单。如果需要撤回 Flutter 路由或 backend a
 路由/适配器改动并继续使用原入口，不删除旧计算实现。详见
 [`docs/rollback.md`](docs/rollback.md)。
 
-## 贡献约定
+## 许可与贡献
+
+SuperCalculator - Next Era 以 GNU Affero 通用公共许可证 v3.0 或更高版本
+（AGPL-3.0-or-later）发布，详见 [`LICENSE`](LICENSE)。源代码托管于
+[GitHub](https://github.com/Hotsteel2901/SuperCalculator_Next-Era) 与
+[Codeberg](https://codeberg.org/hotsteel/SuperCalculator_Next-Era)。
 
 数值改动必须有确定性 vectors，验证有限值和错误边界；新增依赖或平台假设必须在合并
 前记录。

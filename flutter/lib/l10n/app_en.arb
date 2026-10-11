@@ -46,5 +46,31 @@
   "accessibilityPlotSummary": "Function plot for {expression}, with {count} finite samples.",
   "@accessibilityPlotSummary": {
     "description": "Screen reader summary for the plot preview"
-  }
+  },
+  "settingsSubtitle": "Theme, Material You dynamic color and expressive intensity.",
+  "appearance": "Appearance",
+  "themeMode": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "monetTitle": "Material You dynamic color",
+  "monetDescription": "Derive the palette from your wallpaper and system accent color.",
+  "monetUnavailable": "Not available on this device.",
+  "expressiveIntensity": "Expressive intensity",
+  "intensityFoundational": "Foundational",
+  "intensityExcellent": "Excellent",
+  "intensityTransformative": "Transformative",
+  "intensityFoundationalDescription": "Clarity and familiarity first.",
+  "intensityExcellentDescription": "Stronger color, type and shape while preserving established patterns.",
+  "intensityTransformativeDescription": "Bold shapes and motion for hero moments, with the same accessibility contract.",
+  "aboutTagline": "A cross-platform scientific calculator and plotting workbench.",
+  "aboutAuthor": "Author",
+  "aboutSourceCode": "Source code",
+  "aboutLicense": "License",
+  "licenseName": "GNU Affero General Public License v3.0 or later",
+  "licenseView": "View license",
+  "aboutBuiltWith": "Built with Flutter, Riverpod and a replaceable C/Dart computation backend.",
+  "copyLink": "Copy link",
+  "linkCopied": "Link copied to the clipboard.",
+  "linkOpenFailed": "Could not open the link; it was copied instead."
 }

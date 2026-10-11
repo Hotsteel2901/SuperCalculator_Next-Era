@@ -21,8 +21,13 @@ class HomePage extends StatelessWidget {
           actions: <Widget>[
             IconButton(
               tooltip: l10n.about,
-              onPressed: () => _showAbout(context),
+              onPressed: () => context.go('/settings/about'),
               icon: const Icon(Icons.info_outline),
+            ),
+            IconButton(
+              tooltip: l10n.settings,
+              onPressed: () => context.go('/settings'),
+              icon: const Icon(Icons.settings_outlined),
             ),
           ],
         ),
@@ -97,17 +102,6 @@ class HomePage extends StatelessWidget {
       ],
     );
   }
-
-  void _showAbout(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    showAboutDialog(
-      context: context,
-      applicationName: l10n.appTitle,
-      applicationVersion: l10n.versionLabel(l10n.version),
-      applicationIcon: const Icon(Icons.calculate_outlined),
-      children: <Widget>[Text(l10n.aboutBody)],
-    );
-  }
 }
 
 class _StatusChip extends StatelessWidget {
@@ -150,6 +144,7 @@ class _FeatureGrid extends StatelessWidget {
         Icons.history,
         '/history',
       ),
+      _FeatureCardData(l10n.settings, Icons.settings, '/settings'),
     ];
 
     return LayoutBuilder(
