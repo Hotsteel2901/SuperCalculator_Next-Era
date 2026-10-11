@@ -128,9 +128,18 @@ void main() {
       await tester.pumpWidget(_host(const AboutPage()));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('Hotsteel2901'), findsNWidgets(2));
+      expect(find.text('Hotsteel2901 · GitHub'), findsOneWidget);
+      expect(find.text('Hotsteel2901 · Codeberg'), findsOneWidget);
       expect(find.text('GitHub'), findsOneWidget);
       expect(find.text('Codeberg'), findsOneWidget);
+      expect(
+        find.textContaining('github.com/Hotsteel2901/SuperCalculator_Next-Era'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('codeberg.org/hotsteel/SuperCalculator_Next-Era'),
+        findsOneWidget,
+      );
       expect(find.textContaining('Affero'), findsOneWidget);
     },
   );
