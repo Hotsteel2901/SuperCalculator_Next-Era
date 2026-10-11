@@ -1,0 +1,66 @@
+# Codeberg-exclusive, opt-in Flutter pipeline (Forgejo Actions).
+#
+# Codeberg's hosted runners are capped at codeberg-medium = 4 CPU / 8 GB /
+# 10 min and the project asks that heavy pipelines are not run on every push.
+# This workflow is therefore manual (workflow_dispatch): run it from the
+# Codeberg Actions tab when you want a Flutter analyze/test/Web build on
+# Codeberg. Routine builds stay on the GitHub workflows.
+#
+# The first run downloads the pinned Flutter SDK (~1.5 GB) and may be tight
+# against the 10 minute limit; the cache step makes subsequent runs fast.
+# A self-hosted runner with Flutter preinstalled is the recommended option for
+# regular Codeberg builds.
+name: Codeberg Flutter (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      flutter-version:
+        description: Flutter version to install
+        type: string
+        default: '3.47.6'
+
+concurrency:
+  group: codeberg-flutter-${{ forgejo.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  flutter:
+    name: Analyze, test and build Web
+    runs-on: codeberg-medium
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: https://data.forgejo.org/actions/checkout@v4
+
+      - name: Cache the Flutter SDK
+        continue-on-error: true
+        uses: https://data.forgejo.org/actions/cache@v4
+        with:
+          path: ~/flutter
+          key: flutter-${{ inputs.flutter-version }}-${{ runner.os }}
+
+      - name: Install Flutter
+        run: |
+          set -euo pipefail
+          if [ ! -x "$HOME/flutter/bin/flutter" ]; then
+            git clone --depth 1 --branch "${{ inputs.flutter-version }}" \
+              https://github.com/flutter/flutter.git "$HOME/flutter"
+          fi
+          echo "$HOME/flutter/bin" >> "$GITHUB_PATH"
+
+      - name: Flutter checks
+        working-directory: flutter
+        run: |
+          set -euo pipefail
+          flutter --version
+          flutter pub get
+          flutter gen-l10n
+          dart format --output=none --set-exit-if-changed lib test integration_test
+          flutter analyze
+          flutter test
+          flutter build web --release

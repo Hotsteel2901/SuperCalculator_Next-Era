@@ -1,0 +1,47 @@
+# Codeberg-exclusive CI (Forgejo Actions).
+#
+# This file lives under .forgejo/ so it only ever runs on Codeberg/Forgejo;
+# the GitHub mirror uses .github/workflows instead. Both jobs are deliberately
+# tiny so they fit Codeberg's hosted runners, which are capped at
+# codeberg-tiny = 1 CPU / 2 GB / 2 min and codeberg-small = 2 CPU / 4 GB / 5 min.
+name: Codeberg checks
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'flutter/**'
+      - 'android/**'
+      - 'native/**'
+      - 'docs/migration/**'
+      - 'tool/**'
+      - 'LICENSE'
+      - '.forgejo/workflows/**'
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: codeberg-checks-${{ forgejo.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repository:
+    name: Repository hygiene
+    runs-on: codeberg-tiny
+    timeout-minutes: 2
+    steps:
+      - name: Check out the repository
+        uses: https://data.forgejo.org/actions/checkout@v4
+      - name: Validate manifests, localization, license and icons
+        run: python3 tool/ci/validate_repo.py
+
+  native:
+    name: Native C ABI smoke test
+    runs-on: codeberg-small
+    timeout-minutes: 5
+    steps:
+      - name: Check out the repository
+        uses: https://data.forgejo.org/actions/checkout@v4
+      - name: Build and smoke-test the retained C core
+        run: ./tool/build_native.sh

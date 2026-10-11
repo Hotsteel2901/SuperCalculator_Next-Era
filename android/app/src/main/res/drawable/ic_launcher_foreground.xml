@@ -1,45 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive launcher foreground: the bold sigma glyph, kept inside the
+     66dp safe zone so it survives circular and squircle masks. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Safe-zone coordinate frame -->
-    <path android:pathData="M23,82H88M26,85V20"
+    <path
+        android:pathData="M76,32 L32,32 L52.75,54 L32,76 L76,76"
         android:fillColor="@android:color/transparent"
-        android:strokeColor="#A5F3FC"
-        android:strokeAlpha="0.82"
-        android:strokeWidth="2.8"
-        android:strokeLineCap="round" />
-    <path android:pathData="M82,78l6,4-6,4M22,26l4-6 4,6"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="#C4B5FD"
-        android:strokeAlpha="0.82"
-        android:strokeWidth="2.3"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="10.8"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
-    <!-- First curve branch -->
-    <path android:pathData="M30,75C37,72 43,66 48,58C53,50 54,40 58,30"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="#34D399"
-        android:strokeWidth="4.8"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <!-- Second curve branch -->
-    <path android:pathData="M72,29C69,40 69,49 73,57C76,64 81,70 86,75"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="#818CF8"
-        android:strokeWidth="4.8"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
-    <!-- Broken asymptote -->
-    <path android:pathData="M65,22v5M65,32v5M65,42v5M65,52v5M65,62v5M65,72v5M65,82v4"
-        android:fillColor="@android:color/transparent"
-        android:strokeColor="#C084FC"
-        android:strokeWidth="1.8"
-        android:strokeLineCap="round" />
-    <path android:pathData="M65,51m-3.2,0a3.2,3.2 0 1,0 6.4,0a3.2,3.2 0 1,0 -6.4,0"
-        android:fillColor="#E9D5FF" />
-    <path android:pathData="M26,82m-2.2,0a2.2,2.2 0 1,0 4.4,0a2.2,2.2 0 1,0 -4.4,0"
-        android:fillColor="#A5F3FC" />
 </vector>

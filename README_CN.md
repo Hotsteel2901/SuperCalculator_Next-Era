@@ -99,6 +99,20 @@ Flutter UI 是迁移目标。旧 Python/Android/Web 入口在 parity 签收前�
   M3 Expressive token/组件和原生边界说明。
 - [`docs/release-notes.md`](docs/release-notes.md)：本轮增量与已知缺口。
 
+## Codeberg
+
+项目镜像托管于 [Codeberg](https://codeberg.org/hotsteel/SuperCalculator_Next-Era)，
+并在 [`.forgejo/workflows/`](.forgejo/workflows/) 提供 Codeberg 独占 CI：
+
+- `checks.yml`：在 `codeberg-tiny` 上执行仓库自检（清单、本地化一致性、许可与完整
+  图标族），并在 `codeberg-small` 上运行原生 C ABI 冒烟测试。
+- `flutter.yml`：在 `codeberg-medium` 上手动触发的 Flutter analyze/test/Web 构建。
+  由于 Codeberg 托管 runner 限制为 2/5/10 分钟且要求不要每次 push 都跑重管线，该
+  任务为手动触发；日常构建建议使用预装 Flutter 的自建 runner。
+
+启用方式：在 Codeberg 仓库 **Settings → Units → Overview** 勾选 **Actions**（或自建
+Forgejo runner）。GitHub 镜像继续使用 `.github/workflows/`。
+
 ## 安全迁移与回滚
 
 每个迁移增量都应可追加、可验证、可回滚。Flutter 验证期间保留 C 核心、旧版源码、

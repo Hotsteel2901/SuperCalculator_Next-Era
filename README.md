@@ -117,6 +117,23 @@ implemented in a second UI.
   M3 Expressive tokens/components and native boundary details.
 - [`docs/release-notes.md`](docs/release-notes.md) — current increment and known gaps.
 
+## Codeberg
+
+The project is mirrored to [Codeberg](https://codeberg.org/hotsteel/SuperCalculator_Next-Era)
+and ships Codeberg-exclusive CI under [`.forgejo/workflows/`](.forgejo/workflows/):
+
+- `checks.yml` — repository hygiene (manifests, localization parity, license and the
+  full icon family) on `codeberg-tiny`, plus the native C ABI smoke test on
+  `codeberg-small`.
+- `flutter.yml` — an opt-in `workflow_dispatch` Flutter analyze/test/Web build on
+  `codeberg-medium`. It is manual because Codeberg's hosted runners are capped at
+  2/5/10 minutes and the project asks that heavy pipelines are not run on every push;
+  a self-hosted runner with Flutter preinstalled is recommended for routine builds.
+
+To enable it, open the repository's **Settings → Units → Overview** on Codeberg and
+tick **Actions** (or self-host a Forgejo runner). The GitHub mirror keeps using
+`.github/workflows/`.
+
 ## Safe migration and rollback
 
 Each migration increment is additive and should be reversible. The C core, legacy

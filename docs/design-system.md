@@ -24,6 +24,24 @@ The Settings page exposes three appearance controls for the whole shell:
 The About page surfaces the author, both the GitHub and Codeberg repositories and the
 AGPL-3.0-or-later license, with copy-to-clipboard fallbacks when a link cannot open.
 
+## Brand and launcher icons
+
+The "Next Era" brand is a bold white sigma (sum) glyph on a warm rose → orange →
+amber diagonal gradient with two sparkles. `flutter/assets/branding/supercalculator-mark.svg`
+is the source mark; every platform icon (Web/PWA including maskable variants, the
+Windows `.ico`, iOS, macOS, Linux and the Android legacy PNGs) is generated from the
+same geometry. The Android adaptive icon ships separate background, foreground and
+**monochrome** layers, so Android 13+ themed icons recolour the mark with the user's
+Material You palette.
+
+## Android dynamic color (Monet)
+
+On Android 12+ the `dynamic_color` plugin supplies the system wallpaper palette. The
+Settings → Material You switch feeds that `ColorScheme` directly into `buildAppTheme`,
+so the entire app — and the themed launcher icon — follows the user's palette. When the
+platform exposes no dynamic palette the switch reports itself as unavailable and the
+seeded `#536DDE` theme is used instead.
+
 Accessibility is part of the component contract: every action has a semantic label,
 plots expose a textual summary and data table path, curves are not distinguished only
 by color, and reduced-motion behavior is handled by the shared motion policy.
