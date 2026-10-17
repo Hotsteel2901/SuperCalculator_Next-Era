@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/design_tokens.dart';
@@ -10,6 +11,7 @@ import '../../core/ui/feature_widgets.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'calculator_controller.dart';
 import 'plot_fullscreen_page.dart';
+import 'quick_input_panel.dart';
 
 class _PlotPreset {
   const _PlotPreset(
@@ -192,6 +194,20 @@ class _PlotPageState extends ConsumerState<PlotPage> {
     controller.evaluate();
   }
 
+  Future<void> _openQuickInput(
+    CalculatorController controller, {
+    required TextEditingController target,
+    required ValueChanged<String> onChanged,
+    required VoidCallback onSubmit,
+  }) {
+    return QuickInputPanel.show(
+      context: context,
+      target: target,
+      onChanged: onChanged,
+      onSubmit: onSubmit,
+    );
+  }
+
   void _removeCurve(String expression, CalculatorController controller) {
     final curves = <String>[..._curveExpressions]..remove(expression);
     setState(() => _curveExpressions = curves);
@@ -340,8 +356,33 @@ class _PlotPageState extends ConsumerState<PlotPage> {
       'vector': nextEraText(context, 'Vector field P,Q', '向量场 P,Q'),
     };
 
-    return CustomScrollView(
-      slivers: <Widget>[
+    return CallbackShortcuts(
+      bindings: <ShortcutActivator, VoidCallback>{
+        const SingleActivator(LogicalKeyboardKey.keyI, control: true):
+            () => _openQuickInput(
+              controller,
+              target: _expressionController,
+              onChanged: (value) {
+                if (state.mode != 'multi') controller.setExpression(value);
+              },
+              onSubmit: state.mode == 'multi'
+                  ? () => _addCurve(controller)
+                  : controller.evaluate,
+            ),
+        const SingleActivator(LogicalKeyboardKey.keyI, meta: true):
+            () => _openQuickInput(
+              controller,
+              target: _expressionController,
+              onChanged: (value) {
+                if (state.mode != 'multi') controller.setExpression(value);
+              },
+              onSubmit: state.mode == 'multi'
+                  ? () => _addCurve(controller)
+                  : controller.evaluate,
+            ),
+      },
+      child: CustomScrollView(
+        slivers: <Widget>[
         SliverAppBar.large(title: Text(l10n.plotting)),
         SliverPadding(
           padding: EdgeInsets.all(tokens.pagePadding),
@@ -489,14 +530,33 @@ class _PlotPageState extends ConsumerState<PlotPage> {
                               '添加曲线表达式',
                             ),
                             hintText: 'cos(x)',
-                            suffixIcon: IconButton(
-                              tooltip: nextEraText(
-                                context,
-                                'Add curve',
-                                '添加曲线',
-                              ),
-                              onPressed: () => _addCurve(controller),
-                              icon: const Icon(Icons.add),
+                            suffixIcon: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                IconButton(
+                                  tooltip: nextEraText(
+                                    context,
+                                    'Quick input (Ctrl+I)',
+                                    '快捷输入（Ctrl+I）',
+                                  ),
+                                  onPressed: () => _openQuickInput(
+                                    controller,
+                                    target: _expressionController,
+                                    onChanged: (_) {},
+                                    onSubmit: () => _addCurve(controller),
+                                  ),
+                                  icon: const Icon(Icons.keyboard_alt_outlined),
+                                ),
+                                IconButton(
+                                  tooltip: nextEraText(
+                                    context,
+                                    'Add curve',
+                                    '添加曲线',
+                                  ),
+                                  onPressed: () => _addCurve(controller),
+                                  icon: const Icon(Icons.add),
+                                ),
+                              ],
                             ),
                           ),
                           style: const TextStyle(fontFamily: 'monospace'),
@@ -514,6 +574,20 @@ class _PlotPageState extends ConsumerState<PlotPage> {
                                 : state.mode == 'polar'
                                 ? '1 + cos(x)'
                                 : 'sin(x)',
+                            suffixIcon: IconButton(
+                              tooltip: nextEraText(
+                                context,
+                                'Quick input (Ctrl+I)',
+                                '快捷输入（Ctrl+I）',
+                              ),
+                              onPressed: () => _openQuickInput(
+                                controller,
+                                target: _expressionController,
+                                onChanged: controller.setExpression,
+                                onSubmit: controller.evaluate,
+                              ),
+                              icon: const Icon(Icons.keyboard_alt_outlined),
+                            ),
                           ),
                           style: const TextStyle(fontFamily: 'monospace'),
                         ),
@@ -526,6 +600,20 @@ class _PlotPageState extends ConsumerState<PlotPage> {
                           decoration: InputDecoration(
                             labelText: nextEraText(context, 'y(t)', 'y(t)'),
                             hintText: 'sin(x)',
+                            suffixIcon: IconButton(
+                              tooltip: nextEraText(
+                                context,
+                                'Quick input',
+                                '快捷输入',
+                              ),
+                              onPressed: () => _openQuickInput(
+                                controller,
+                                target: _secondaryController,
+                                onChanged: controller.setSecondaryExpression,
+                                onSubmit: controller.evaluate,
+                              ),
+                              icon: const Icon(Icons.keyboard_alt_outlined),
+                            ),
                           ),
                           style: const TextStyle(fontFamily: 'monospace'),
                         ),
@@ -887,6 +975,7 @@ class _PlotPageState extends ConsumerState<PlotPage> {
           ),
         ),
       ],
+      ),
     );
   }
 }
