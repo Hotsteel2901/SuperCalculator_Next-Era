@@ -196,7 +196,10 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
     if (widget.target.text.isEmpty) return;
     _pushUndo();
     _setValue(
-      const TextEditingValue(text: '', selection: TextSelection.collapsed(offset: 0)),
+      const TextEditingValue(
+        text: '',
+        selection: TextSelection.collapsed(offset: 0),
+      ),
     );
   }
 
@@ -285,12 +288,9 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
             _redoStep,
         const SingleActivator(LogicalKeyboardKey.keyY, meta: true): _redoStep,
         const SingleActivator(LogicalKeyboardKey.backspace): _backspace,
-        const SingleActivator(
-          LogicalKeyboardKey.backspace,
-          control: true,
-        ): _backspace,
-        const SingleActivator(LogicalKeyboardKey.escape):
-            _close,
+        const SingleActivator(LogicalKeyboardKey.backspace, control: true):
+            _backspace,
+        const SingleActivator(LogicalKeyboardKey.escape): _close,
       },
       child: Focus(
         child: Column(
@@ -321,7 +321,10 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                 border: Border.all(color: colors.outlineVariant),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -346,7 +349,9 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                           ),
                         Text(
                           status,
-                          style: textTheme.labelSmall?.copyWith(color: statusColor),
+                          style: textTheme.labelSmall?.copyWith(
+                            color: statusColor,
+                          ),
                         ),
                       ],
                     ),
@@ -391,7 +396,9 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                 itemBuilder: (context, index) {
                   final item = _quickInputCategories[index];
                   return ChoiceChip(
-                    label: Text(_localized(context, item.labelEn, item.labelZh)),
+                    label: Text(
+                      _localized(context, item.labelEn, item.labelZh),
+                    ),
                     selected: index == _categoryIndex,
                     onSelected: (_) {
                       setState(() {
@@ -420,56 +427,67 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: columns,
-                                mainAxisExtent: math.max(52.0, 52 * textScale),
-                                crossAxisSpacing: 8,
-                                mainAxisSpacing: 8,
-                              ),
-                          itemCount: category.keys.length,
-                          itemBuilder: (context, index) {
-                            final key = category.keys[index];
-                            final accent = _categoryColors[category.id]!;
-                            return Tooltip(
-                              message: _localized(context, key.descriptionEn, key.descriptionZh),
-                              child: Material(
-                                color: colors.surfaceContainerLow,
-                                borderRadius: BorderRadius.circular(12),
-                                child: InkWell(
-                                  focusNode: _keyFocusNodes[_categoryIndex][index],
-                                  autofocus: _categoryIndex == 0 && index == 0,
-                                  onFocusChange: (focused) {
-                                    if (focused) _focusedKeyIndex = index;
-                                  },
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: columns,
+                                  mainAxisExtent: math.max(
+                                    52.0,
+                                    52 * textScale,
+                                  ),
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 8,
+                                ),
+                            itemCount: category.keys.length,
+                            itemBuilder: (context, index) {
+                              final key = category.keys[index];
+                              final accent = _categoryColors[category.id]!;
+                              return Tooltip(
+                                message: _localized(
+                                  context,
+                                  key.descriptionEn,
+                                  key.descriptionZh,
+                                ),
+                                child: Material(
+                                  color: colors.surfaceContainerLow,
                                   borderRadius: BorderRadius.circular(12),
-                                  onTap: () => _insert(key),
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: accent,
-                                          width: 2,
+                                  child: InkWell(
+                                    focusNode:
+                                        _keyFocusNodes[_categoryIndex][index],
+                                    autofocus:
+                                        _categoryIndex == 0 && index == 0,
+                                    onFocusChange: (focused) {
+                                      if (focused) _focusedKeyIndex = index;
+                                    },
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: () => _insert(key),
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border(
+                                          bottom: BorderSide(
+                                            color: accent,
+                                            width: 2,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                                    child: Text(
-                                      key.label,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.center,
-                                      style: textTheme.titleSmall?.copyWith(
-                                        fontFamily: 'monospace',
-                                        fontWeight: FontWeight.w600,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                      ),
+                                      child: Text(
+                                        key.label,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                        style: textTheme.titleSmall?.copyWith(
+                                          fontFamily: 'monospace',
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -534,13 +552,15 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
       tilePadding: EdgeInsets.zero,
       childrenPadding: EdgeInsets.zero,
       leading: const Icon(Icons.history),
-      title: Text(
-        nextEraText(context, 'Recent expressions', '最近表达式'),
-      ),
+      title: Text(nextEraText(context, 'Recent expressions', '最近表达式')),
       subtitle: Text(
         entries.isEmpty
             ? nextEraText(context, 'No expressions yet', '暂无绘图记录')
-            : nextEraText(context, '${entries.length} recent', '最近 ${entries.length} 条'),
+            : nextEraText(
+                context,
+                '${entries.length} recent',
+                '最近 ${entries.length} 条',
+              ),
       ),
       children: <Widget>[
         if (entries.isEmpty)
@@ -567,7 +587,10 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.add_to_photos_outlined, color: colors.primary),
+              leading: Icon(
+                Icons.add_to_photos_outlined,
+                color: colors.primary,
+              ),
               title: Text(
                 _expressionFromHistory(entry.expression),
                 maxLines: 2,
@@ -581,7 +604,9 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                 _setValue(
                   TextEditingValue(
                     text: expression,
-                    selection: TextSelection.collapsed(offset: expression.length),
+                    selection: TextSelection.collapsed(
+                      offset: expression.length,
+                    ),
                   ),
                 );
               },

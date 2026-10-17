@@ -135,7 +135,8 @@ class AppShell extends StatelessWidget {
                             : item.icon,
                       ),
                       title: Text(item.label),
-                      selected: location == item.path ||
+                      selected:
+                          location == item.path ||
                           location.startsWith('${item.path}/'),
                       onTap: () {
                         Navigator.of(sheetContext).pop();
