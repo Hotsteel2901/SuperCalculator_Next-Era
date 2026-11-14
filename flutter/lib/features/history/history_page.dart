@@ -69,9 +69,8 @@ class HistoryPage extends ConsumerWidget {
                         'Automatic recording is disabled in Settings › Input.',
                         '自动记录已在“设置 › 输入”中关闭。',
                       ),
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: scheme.onTertiaryContainer,
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(color: scheme.onTertiaryContainer),
                     ),
                   ),
                 ],
@@ -229,9 +228,8 @@ class HistoryPage extends ConsumerWidget {
               'Storage is best-effort; private browsing or restricted profiles may keep history session-only.',
               '存储采用尽力而为策略；隐私浏览或受限配置可能只保留当前会话。',
             ),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: scheme.onSurfaceVariant),
           ),
         ],
       ),

@@ -418,11 +418,10 @@ class _PlotPageState extends ConsumerState<PlotPage> {
     return switch (mode) {
       'parametric' => nextEraText(context, 'x(t)', 'x(t)'),
       'polar' => nextEraText(context, 'r(t)', 'r(t)'),
-      'implicit' || 'surface' || 'contour' || 'direction' => nextEraText(
-        context,
-        'f(x, y)',
-        'f(x, y)',
-      ),
+      'implicit' ||
+      'surface' ||
+      'contour' ||
+      'direction' => nextEraText(context, 'f(x, y)', 'f(x, y)'),
       'vector' => nextEraText(context, 'P(x, y)', 'P(x, y)'),
       _ => AppLocalizations.of(context).expression,
     };
@@ -496,14 +495,12 @@ class _PlotPageState extends ConsumerState<PlotPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              if (state.mode != 'function' && state.mode != 'multi') ...<
-                Widget
-              >[
+              if (state.mode != 'function' &&
+                  state.mode != 'multi') ...<Widget>[
                 Text(
                   _expressionLabel(context, state.mode),
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
+                  style: Theme.of(context).textTheme.labelLarge
+                      ?.copyWith(color: scheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 8),
               ],
@@ -543,7 +540,8 @@ class _PlotPageState extends ConsumerState<PlotPage> {
                 _ExpressionField(
                   controller: _expressionController,
                   hint: _hintForMode(state.mode),
-                  onChanged: (String value) => _scheduleAutoEvaluate(controller),
+                  onChanged: (String value) =>
+                      _scheduleAutoEvaluate(controller),
                   onSubmitted: () => _addCurve(controller),
                   onQuickInput: () => _openQuickInput(
                     target: _expressionController,
@@ -557,9 +555,8 @@ class _PlotPageState extends ConsumerState<PlotPage> {
                   ),
                 ),
               ],
-              if (state.mode == 'parametric' || state.mode == 'vector') ...<
-                Widget
-              >[
+              if (state.mode == 'parametric' ||
+                  state.mode == 'vector') ...<Widget>[
                 const SizedBox(height: 10),
                 _ExpressionField(
                   controller: _secondaryController,
@@ -588,81 +585,72 @@ class _PlotPageState extends ConsumerState<PlotPage> {
                     for (final name in parameterNames)
                       SizedBox(
                         width: 148,
-                        child: TextField(
-                          controller: _parameterControllers[name],
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                            signed: true,
-                          ),
-                          onChanged: (String value) {
-                            final parsed = double.tryParse(value);
-                            if (parsed != null && parsed.isFinite) {
-                              controller.setParameter(name, parsed);
-                              _scheduleAutoEvaluate(controller);
-                            }
-                          },
-                          decoration: InputDecoration(
-                            labelText: name,
-                            isDense: true,
+                        child: LabeledField(
+                          label: name,
+                          child: TextField(
+                            controller: _parameterControllers[name],
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                              signed: true,
+                            ),
+                            onChanged: (String value) {
+                              final parsed = double.tryParse(value);
+                              if (parsed != null && parsed.isFinite) {
+                                controller.setParameter(name, parsed);
+                                _scheduleAutoEvaluate(controller);
+                              }
+                            },
+                            decoration: const InputDecoration(hintText: '0'),
                           ),
                         ),
                       ),
                   ],
                 ),
               ],
-              if (state.mode == 'parametric' || state.mode == 'polar') ...<
-                Widget
-              >[
-                const SizedBox(height: 10),
+              if (state.mode == 'parametric' ||
+                  state.mode == 'polar') ...<Widget>[
+                const SizedBox(height: 14),
                 FormRow(
                   children: <Widget>[
-                    TextField(
-                      controller: _parameterStartController,
-                      onChanged: (_) => _updateParameterRange(controller),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                        signed: true,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: nextEraText(
-                          context,
-                          'Parameter start',
-                          '参数起点',
+                    LabeledField(
+                      label: nextEraText(context, 'Parameter start', '参数起点'),
+                      child: TextField(
+                        controller: _parameterStartController,
+                        onChanged: (_) => _updateParameterRange(controller),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                          signed: true,
                         ),
-                        isDense: true,
+                        decoration: const InputDecoration(hintText: '0'),
                       ),
                     ),
-                    TextField(
-                      controller: _parameterEndController,
-                      onChanged: (_) => _updateParameterRange(controller),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                        signed: true,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: nextEraText(
-                          context,
-                          'Parameter end',
-                          '参数终点',
+                    LabeledField(
+                      label: nextEraText(context, 'Parameter end', '参数终点'),
+                      child: TextField(
+                        controller: _parameterEndController,
+                        onChanged: (_) => _updateParameterRange(controller),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                          signed: true,
                         ),
-                        isDense: true,
+                        decoration: const InputDecoration(hintText: '2π'),
                       ),
                     ),
                   ],
                 ),
               ],
               if (state.mode == 'function') ...<Widget>[
-                const SizedBox(height: 10),
-                TextField(
-                  controller: _xController,
-                  onChanged: controller.setX,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                    signed: true,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: l10n.argumentX,
-                    isDense: true,
+                const SizedBox(height: 14),
+                LabeledField(
+                  label: l10n.argumentX,
+                  child: TextField(
+                    controller: _xController,
+                    onChanged: controller.setX,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: true,
+                    ),
+                    decoration: const InputDecoration(hintText: '0'),
                   ),
                 ),
               ],
@@ -702,7 +690,10 @@ class _PlotPageState extends ConsumerState<PlotPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Semantics(
-                label: l10n.accessibilityPlotSummary(totalCount, state.expression),
+                label: l10n.accessibilityPlotSummary(
+                  totalCount,
+                  state.expression,
+                ),
                 child: SizedBox(
                   height: plotHeight,
                   child: PlotSurface(
@@ -742,7 +733,8 @@ class _PlotPageState extends ConsumerState<PlotPage> {
                   AppTooltip(
                     message: nextEraText(context, 'Zoom out', '缩小'),
                     child: IconButton.filledTonal(
-                      onPressed: () => _plotViewKey.currentState?.zoomBy(1 / 1.25),
+                      onPressed: () =>
+                          _plotViewKey.currentState?.zoomBy(1 / 1.25),
                       icon: const Icon(Icons.remove_rounded),
                     ),
                   ),
@@ -976,7 +968,10 @@ class _ModeStrip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 2),
           child: Row(
             children: <Widget>[
-              for (final chip in chips) ...<Widget>[chip, const SizedBox(width: 8)],
+              for (final chip in chips) ...<Widget>[
+                chip,
+                const SizedBox(width: 8),
+              ],
             ],
           ),
         );
@@ -1014,7 +1009,16 @@ class _ExpressionField extends StatelessWidget {
       keyboardType: TextInputType.text,
       textInputAction: TextInputAction.go,
       autocorrect: false,
-      enableSuggestions: false,
+      // `enableSuggestions: false` makes the Android engine report the field as
+      // `TYPE_TEXT_VARIATION_VISIBLE_PASSWORD` (see TextInputPlugin: it ORs the
+      // flag together with NO_SUGGESTIONS). MIUI/HyperOS treat that as a
+      // password field and force the "secure keyboard", which cannot type
+      // operators. Suggestions stay enabled; autocorrect stays off.
+      enableSuggestions: true,
+      // Word processors replace hyphens with en dashes and quotes with
+      // typographic ones; both would break an expression.
+      smartDashesType: SmartDashesType.disabled,
+      smartQuotesType: SmartQuotesType.disabled,
       style: const TextStyle(fontFamily: 'monospace', fontSize: 16),
       decoration: InputDecoration(
         labelText: label,

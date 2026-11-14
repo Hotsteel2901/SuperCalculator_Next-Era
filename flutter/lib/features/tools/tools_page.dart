@@ -110,6 +110,7 @@ class _ToolsPageState extends ConsumerState<ToolsPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 DropdownButtonFormField<String>(
+                  isExpanded: true,
                   initialValue: _category,
                   decoration: InputDecoration(
                     labelText: nextEraText(context, 'Category', '类别'),
@@ -195,6 +196,7 @@ class _ToolsPageState extends ConsumerState<ToolsPage> {
     ValueChanged<String> onChanged,
   ) {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: value,
       decoration: InputDecoration(labelText: label),
       items: units

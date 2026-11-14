@@ -186,7 +186,8 @@ class InteractivePlotViewState extends State<InteractivePlotView>
   @override
   void didUpdateWidget(covariant InteractivePlotView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final sameCurve = identical(oldWidget.points, widget.points) &&
+    final sameCurve =
+        identical(oldWidget.points, widget.points) &&
         identical(oldWidget.contours, widget.contours);
     if (!sameCurve) _startDrawAnimation();
   }
@@ -217,10 +218,16 @@ class InteractivePlotViewState extends State<InteractivePlotView>
   void _applyAspectLock(Size size) {
     if (!widget.lockAspect) return;
     final rect = _plotRect;
-    if (rect.width <= 1 || rect.height <= 1 || !_viewport.isValid) return;
+    if (rect.width <= 1 || rect.height <= 1 || !_viewport.isValid) {
+      return;
+    }
     final targetYSpan = _viewport.xSpan * rect.height / rect.width;
-    if (!targetYSpan.isFinite || targetYSpan <= 0) return;
-    if ((targetYSpan - _viewport.ySpan).abs() <= _viewport.ySpan * 0.005) return;
+    if (!targetYSpan.isFinite || targetYSpan <= 0) {
+      return;
+    }
+    if ((targetYSpan - _viewport.ySpan).abs() <= _viewport.ySpan * 0.005) {
+      return;
+    }
     final centre = (_viewport.yMin + _viewport.yMax) / 2;
     final next = PlotViewport(
       xMin: _viewport.xMin,
@@ -254,7 +261,9 @@ class InteractivePlotViewState extends State<InteractivePlotView>
   /// Restores the 2D axes or the 3D camera to its standard starting view.
   void resetView() {
     final start = _startingViewport;
-    if (_viewport == start && _zoom == widget.initialZoom && _pan == Offset.zero) {
+    if (_viewport == start &&
+        _zoom == widget.initialZoom &&
+        _pan == Offset.zero) {
       return;
     }
     setState(() {

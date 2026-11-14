@@ -1,4 +1,5 @@
-import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoPageTransitionsBuilder;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show CupertinoPageTransitionsBuilder;
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/settings/app_settings.dart';
@@ -29,9 +30,7 @@ ThemeData buildAppTheme(
   bool platformReduceMotion = false,
 }) {
   final useDynamic = dynamicSeed != null && settings.monetEnabled;
-  final seed = useDynamic
-      ? dynamicSeed
-      : (settings.seedPalette.seedColor);
+  final seed = useDynamic ? dynamicSeed : (settings.seedPalette.seedColor);
   final scheme =
       colorScheme ??
       buildColorScheme(
@@ -85,10 +84,10 @@ ThemeData buildAppTheme(
       scrolledUnderElevation: 2,
       centerTitle: false,
       elevation: 0,
-      titleTextStyle: textTheme.titleLarge?.copyWith(
-        color: scheme.onSurface,
-        fontWeight: FontWeight.w700,
-      ),
+      // No `titleTextStyle` here on purpose: `SliverAppBar.large` resolves its
+      // expanded heading from `appBarTheme.titleTextStyle` first, so overriding
+      // it with an inline size turned every page's hero title into small print
+      // and left a band of empty space above the content.
       iconTheme: IconThemeData(color: scheme.onSurfaceVariant, size: 24),
     ),
     cardTheme: CardThemeData(
@@ -137,9 +136,7 @@ ThemeData buildAppTheme(
           EdgeInsets.symmetric(horizontal: 22, vertical: 8),
         ),
         textStyle: WidgetStatePropertyAll<TextStyle?>(buttonTextStyle),
-        shape: const WidgetStatePropertyAll<OutlinedBorder>(
-          StadiumBorder(),
-        ),
+        shape: const WidgetStatePropertyAll<OutlinedBorder>(StadiumBorder()),
         elevation: const WidgetStatePropertyAll<double>(0),
         animationDuration: tokens.scaled(const Duration(milliseconds: 160)),
         iconAlignment: IconAlignment.end,
@@ -226,7 +223,9 @@ ThemeData buildAppTheme(
         final selected = states.contains(WidgetState.selected);
         return IconThemeData(
           size: 24,
-          color: selected ? scheme.onSecondaryContainer : scheme.onSurfaceVariant,
+          color: selected
+              ? scheme.onSecondaryContainer
+              : scheme.onSurfaceVariant,
         );
       }),
     ),
@@ -244,17 +243,30 @@ ThemeData buildAppTheme(
         color: scheme.onSurfaceVariant,
       ),
     ),
+    // Outlined rather than filled: on a filled field Flutter floats the label
+    // onto the container's top edge, and a stack of fields then reads as a
+    // column of grey boxes with captions that look like they belong to the box
+    // above. An outline notches around the label instead, so each label is
+    // visibly part of its own field.
     inputDecorationTheme: InputDecorationTheme(
-      filled: true,
+      filled: false,
       fillColor: scheme.surfaceContainerHighest.withValues(alpha: 0.55),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
+      // A visible border makes Flutter notch the outline around a floating
+      // label. With `BorderSide.none` the label was painted straight over the
+      // filled container's edge and, in a dense form, sat in the gap between two
+      // fields, so it looked like the caption of the field above.
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(tokens.cornerSmall + 4),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(
+          color: scheme.outlineVariant.withValues(alpha: 0.6),
+        ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(tokens.cornerSmall + 4),
-        borderSide: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.6)),
+        borderSide: BorderSide(
+          color: scheme.outlineVariant.withValues(alpha: 0.6),
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(tokens.cornerSmall + 4),
@@ -264,8 +276,16 @@ ThemeData buildAppTheme(
         borderRadius: BorderRadius.circular(tokens.cornerSmall + 4),
         borderSide: BorderSide(color: scheme.error, width: 1.5),
       ),
-      labelStyle: textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-      floatingLabelStyle: textTheme.bodySmall?.copyWith(color: scheme.primary),
+      labelStyle: textTheme.bodyMedium?.copyWith(
+        color: scheme.onSurfaceVariant,
+      ),
+      // Muted while unfocused; the border already carries the focus colour.
+      floatingLabelStyle: textTheme.labelMedium?.copyWith(
+        color: scheme.onSurfaceVariant,
+      ),
+      helperStyle: textTheme.bodySmall?.copyWith(
+        color: scheme.onSurfaceVariant.withValues(alpha: 0.85),
+      ),
     ),
     chipTheme: ChipThemeData(
       backgroundColor: scheme.surfaceContainerLow,
@@ -274,7 +294,9 @@ ThemeData buildAppTheme(
       side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.7)),
       shape: const StadiumBorder(),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      labelStyle: textTheme.labelLarge?.copyWith(color: scheme.onSurfaceVariant),
+      labelStyle: textTheme.labelLarge?.copyWith(
+        color: scheme.onSurfaceVariant,
+      ),
       secondaryLabelStyle: textTheme.labelLarge?.copyWith(
         color: scheme.onSecondaryContainer,
       ),
@@ -370,13 +392,11 @@ TextTheme _buildTextTheme(
   required bool bold,
   required ExpressiveIntensity expressive,
 }) {
-  final base = (brightness == Brightness.dark
-          ? Typography.material2021().white
-          : Typography.material2021().black)
-      .apply(
-        bodyColor: scheme.onSurface,
-        displayColor: scheme.onSurface,
-      );
+  final base =
+      (brightness == Brightness.dark
+              ? Typography.material2021().white
+              : Typography.material2021().black)
+          .apply(bodyColor: scheme.onSurface, displayColor: scheme.onSurface);
   // Material 3 Expressive tightens large display type and gives labels a
   // confident, slightly heavier voice.
   final tracking = switch (expressive) {

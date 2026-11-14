@@ -74,11 +74,7 @@ class AdaptiveCurveSampler {
         mergedY.add(ys[index]);
         if (cursor < midIndices.length && midIndices[cursor] == index) {
           final midY = midYs[cursor];
-          if (_shouldRefine(
-            ys[index]!,
-            midY,
-            ys[index + 1]!,
-          )) {
+          if (_shouldRefine(ys[index]!, midY, ys[index + 1]!)) {
             mergedX.add(midpoints[cursor]);
             mergedY.add(midY);
           }
@@ -118,8 +114,7 @@ class AdaptiveCurveSampler {
     var parameters = List<double>.generate(
       initialCount + 1,
       (index) =>
-          parameterMin +
-          (parameterMax - parameterMin) * index / initialCount,
+          parameterMin + (parameterMax - parameterMin) * index / initialCount,
       growable: false,
     );
     var points = await map(parameters);
@@ -222,10 +217,7 @@ class AdaptiveCurveSampler {
     return curvature > 0.0035 || slope > 2.2;
   }
 
-  static List<PlotPoint> _toPoints(
-    List<double> xs,
-    List<double?> ys,
-  ) {
+  static List<PlotPoint> _toPoints(List<double> xs, List<double?> ys) {
     final points = <PlotPoint>[];
     for (var index = 0; index < xs.length; index++) {
       final y = index < ys.length ? ys[index] : null;
@@ -251,10 +243,7 @@ List<String> splitCurveExpressions(String expression) => expression
 /// `NaN` means "undefined sample inside this curve", while infinities mean
 /// "a new curve starts here", so the painter can pick the next palette color
 /// without guessing from coordinates.
-const PlotPoint curveSeparator = PlotPoint(
-  double.infinity,
-  double.infinity,
-);
+const PlotPoint curveSeparator = PlotPoint(double.infinity, double.infinity);
 
 /// Normalizes a plot coordinate for map keys without losing precision.
 int quantizeCoordinate(double value, {double scale = 1e6}) =>

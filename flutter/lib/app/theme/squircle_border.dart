@@ -109,17 +109,20 @@ class SquircleBorder extends OutlinedBorder {
       final angle = startAngle - step / steps * (math.pi / 2);
       final cosT = math.cos(angle);
       final sinT = math.sin(angle);
-      final x = math.pow(cosT.abs(), 2 / exponent).toDouble() *
-          (cosT < 0 ? -1 : 1);
-      final y = math.pow(sinT.abs(), 2 / exponent).toDouble() *
-          (sinT < 0 ? -1 : 1);
+      final x =
+          math.pow(cosT.abs(), 2 / exponent).toDouble() * (cosT < 0 ? -1 : 1);
+      final y =
+          math.pow(sinT.abs(), 2 / exponent).toDouble() * (sinT < 0 ? -1 : 1);
       path.lineTo(cx + x * r, cy - y * r);
     }
   }
 
   @override
-  SquircleBorder copyWith({BorderSide? side}) =>
-      SquircleBorder(radius: radius, exponent: exponent, side: side ?? this.side);
+  SquircleBorder copyWith({BorderSide? side}) => SquircleBorder(
+    radius: radius,
+    exponent: exponent,
+    side: side ?? this.side,
+  );
 
   @override
   bool operator ==(Object other) =>

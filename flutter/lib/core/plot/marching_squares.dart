@@ -74,13 +74,21 @@ abstract final class MarchingSquares {
     required double yMax,
     required List<double> levels,
   }) {
-    if (rows < 2 || columns < 2 || levels.isEmpty) return const <ContourLevel>[];
+    if (rows < 2 || columns < 2 || levels.isEmpty) {
+      return const <ContourLevel>[];
+    }
     var low = double.infinity;
     var high = double.negativeInfinity;
     for (final value in grid) {
-      if (!value.isFinite) continue;
-      if (value < low) low = value;
-      if (value > high) high = value;
+      if (!value.isFinite) {
+        continue;
+      }
+      if (value < low) {
+        low = value;
+      }
+      if (value > high) {
+        high = value;
+      }
     }
     if (!low.isFinite || !high.isFinite || high <= low) {
       return const <ContourLevel>[];
@@ -113,34 +121,14 @@ abstract final class MarchingSquares {
           final y0 = yMin + row * dy;
           final y1 = y0 + dy;
 
-          PlotPoint onBottom() => _interpolate(
-            level,
-            a,
-            b,
-            PlotPoint(x0, y0),
-            PlotPoint(x1, y0),
-          );
-          PlotPoint onRight() => _interpolate(
-            level,
-            b,
-            c,
-            PlotPoint(x1, y0),
-            PlotPoint(x1, y1),
-          );
-          PlotPoint onTop() => _interpolate(
-            level,
-            d,
-            c,
-            PlotPoint(x0, y1),
-            PlotPoint(x1, y1),
-          );
-          PlotPoint onLeft() => _interpolate(
-            level,
-            a,
-            d,
-            PlotPoint(x0, y0),
-            PlotPoint(x0, y1),
-          );
+          PlotPoint onBottom() =>
+              _interpolate(level, a, b, PlotPoint(x0, y0), PlotPoint(x1, y0));
+          PlotPoint onRight() =>
+              _interpolate(level, b, c, PlotPoint(x1, y0), PlotPoint(x1, y1));
+          PlotPoint onTop() =>
+              _interpolate(level, d, c, PlotPoint(x0, y1), PlotPoint(x1, y1));
+          PlotPoint onLeft() =>
+              _interpolate(level, a, d, PlotPoint(x0, y0), PlotPoint(x0, y1));
 
           void segment(PlotPoint first, PlotPoint second) {
             if (!first.isFinite || !second.isFinite) return;
@@ -229,10 +217,7 @@ abstract final class MarchingSquares {
   ) {
     final delta = secondValue - firstValue;
     if (!delta.isFinite || delta.abs() < 1e-12) {
-      return PlotPoint(
-        (first.x + second.x) / 2,
-        (first.y + second.y) / 2,
-      );
+      return PlotPoint((first.x + second.x) / 2, (first.y + second.y) / 2);
     }
     final t = ((level - firstValue) / delta).clamp(0.0, 1.0).toDouble();
     return PlotPoint(
@@ -242,11 +227,7 @@ abstract final class MarchingSquares {
   }
 
   /// Picks readable contour levels between [low] and [high].
-  static List<double> niceLevels(
-    double low,
-    double high, {
-    int count = 9,
-  }) {
+  static List<double> niceLevels(double low, double high, {int count = 9}) {
     if (!low.isFinite || !high.isFinite || high <= low || count < 1) {
       return const <double>[];
     }

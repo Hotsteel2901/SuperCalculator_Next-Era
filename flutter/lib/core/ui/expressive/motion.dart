@@ -387,14 +387,17 @@ class _GlowPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = size.center(Offset.zero);
     final paint = Paint()
-      ..shader = RadialGradient(
-        colors: <Color>[
-          color.withValues(alpha: intensity),
-          color.withValues(alpha: intensity * 0.35),
-          color.withValues(alpha: 0),
-        ],
-        stops: const <double>[0, 0.45, 1],
-      ).createShader(Rect.fromCircle(center: center, radius: size.shortestSide / 2));
+      ..shader =
+          RadialGradient(
+            colors: <Color>[
+              color.withValues(alpha: intensity),
+              color.withValues(alpha: intensity * 0.35),
+              color.withValues(alpha: 0),
+            ],
+            stops: const <double>[0, 0.45, 1],
+          ).createShader(
+            Rect.fromCircle(center: center, radius: size.shortestSide / 2),
+          );
     canvas.drawCircle(center, size.shortestSide / 2, paint);
   }
 

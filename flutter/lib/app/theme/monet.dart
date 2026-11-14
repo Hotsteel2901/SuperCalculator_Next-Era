@@ -66,9 +66,10 @@ Future<MonetSeeds> _loadSystemSeeds(SeedPalette fallback) async {
 Color _ensureChroma(Color color) {
   final hsv = HSVColor.fromColor(color);
   if (hsv.saturation >= 0.18) return color;
-  return hsv.withSaturation(0.35).withValue(
-    hsv.value.clamp(0.35, 0.8).toDouble(),
-  ).toColor();
+  return hsv
+      .withSaturation(0.35)
+      .withValue(hsv.value.clamp(0.35, 0.8).toDouble())
+      .toColor();
 }
 
 final monetSeedsProvider = FutureProvider<MonetSeeds>((ref) async {
@@ -140,7 +141,11 @@ class PlotPalette {
       scheme.primaryContainer,
       scheme.tertiaryContainer,
     ];
-    return PlotPalette(base.map((color) => _readableOnSurface(color, scheme)).toList(growable: false));
+    return PlotPalette(
+      base
+          .map((color) => _readableOnSurface(color, scheme))
+          .toList(growable: false),
+    );
   }
 
   Color at(int index) => colors[index % colors.length];

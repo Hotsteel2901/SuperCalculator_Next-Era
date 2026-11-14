@@ -6,6 +6,7 @@ import '../../app/theme/design_tokens.dart';
 import '../../app/theme/monet.dart';
 import '../../core/history/history_repository.dart';
 import '../../core/settings/app_settings.dart';
+import '../../core/settings/settings_labels.dart';
 import '../../core/ui/expressive/expressive_widgets.dart';
 import '../../core/ui/expressive/motion.dart';
 import '../../core/ui/feature_widgets.dart';
@@ -24,11 +25,8 @@ class HomePage extends ConsumerWidget {
     final history = ref.watch(calculationHistoryProvider);
     final settings = ref.watch(
       appSettingsProvider.select(
-        (AppSettings value) => (
-          value.intensity,
-          value.monetEnabled,
-          value.motionSpeed,
-        ),
+        (AppSettings value) =>
+            (value.intensity, value.monetEnabled, value.motionSpeed),
       ),
     );
 
@@ -86,7 +84,7 @@ class HomePage extends ConsumerWidget {
                 ),
                 icon: Icons.widgets_rounded,
                 trailing: StatusPill(
-                  label: settings.$1.name,
+                  label: intensityLabel(context, settings.$1),
                   compact: true,
                   color: scheme.tertiary,
                 ),
@@ -101,7 +99,10 @@ class HomePage extends ConsumerWidget {
                 ],
                 child: Row(
                   children: <Widget>[
-                    Icon(Icons.tips_and_updates_outlined, color: scheme.tertiary),
+                    Icon(
+                      Icons.tips_and_updates_outlined,
+                      color: scheme.tertiary,
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -122,9 +123,8 @@ class HomePage extends ConsumerWidget {
               const SizedBox(height: 16),
               Text(
                 '${l10n.migrationStatus} · AGPL-3.0-or-later',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.labelSmall
+                    ?.copyWith(color: scheme.onSurfaceVariant),
               ),
             ]),
           ),
@@ -180,7 +180,11 @@ class _HeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 StatusPill(
-                  label: nextEraText(context, 'Material 3 Expressive', '材质 3 表现力'),
+                  label: nextEraText(
+                    context,
+                    'Material 3 Expressive',
+                    '材质 3 表现力',
+                  ),
                   icon: Icons.auto_awesome_rounded,
                   color: scheme.onPrimaryContainer,
                   compact: true,
@@ -220,11 +224,6 @@ class _HeroCard extends StatelessWidget {
                       icon: const Icon(Icons.history_rounded),
                       label: Text(nextEraText(context, 'History', '历史')),
                     ),
-                    TextButton.icon(
-                      onPressed: () => context.go('/settings'),
-                      icon: const Icon(Icons.tune_rounded),
-                      label: Text(l10n.settings),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -239,7 +238,11 @@ class _HeroCard extends StatelessWidget {
                     ),
                     _HeroFact(
                       icon: Icons.public_rounded,
-                      label: nextEraText(context, 'Win · Lin · macOS · Android · Web', 'Win · Lin · macOS · Android · Web'),
+                      label: nextEraText(
+                        context,
+                        'Win · Lin · macOS · Android · Web',
+                        'Win · Lin · macOS · Android · Web',
+                      ),
                       color: scheme.onPrimaryContainer,
                     ),
                     _HeroFact(
@@ -285,10 +288,15 @@ class _HeroFact extends StatelessWidget {
       children: <Widget>[
         Icon(icon, size: 14, color: color.withValues(alpha: 0.8)),
         const SizedBox(width: 5),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: color.withValues(alpha: 0.8),
+        // The facts sit in a `Wrap`; a long platform list must ellipsize rather
+        // than overflow the hero card on a 360dp phone.
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelSmall
+                ?.copyWith(color: color.withValues(alpha: 0.8)),
           ),
         ),
       ],
@@ -308,7 +316,11 @@ class _StatusStrip extends ConsumerWidget {
     final settings = ref.watch(appSettingsProvider);
     final source = seeds.asData?.value.source;
     final sourceLabel = switch (source) {
-      MonetSource.wallpaper => nextEraText(context, 'Wallpaper palette', '壁纸取色'),
+      MonetSource.wallpaper => nextEraText(
+        context,
+        'Wallpaper palette',
+        '壁纸取色',
+      ),
       MonetSource.accent => nextEraText(context, 'System accent', '系统强调色'),
       MonetSource.seed => nextEraText(context, 'Seed palette', '种子配色'),
       null => nextEraText(context, 'Reading colors', '读取配色'),
@@ -322,8 +334,10 @@ class _StatusStrip extends ConsumerWidget {
           children: <Widget>[
             _StatTile(
               icon: Icons.palette_outlined,
-              label: settings.monetEnabled ? sourceLabel : nextEraText(context, 'Seed palette', '种子配色'),
-              value: settings.monetStyle.name,
+              label: settings.monetEnabled
+                  ? sourceLabel
+                  : nextEraText(context, 'Seed palette', '种子配色'),
+              value: monetStyleLabel(context, settings.monetStyle),
               color: scheme.primary,
               width: narrow ? (constraints.maxWidth - 10) / 2 : 200,
             ),
@@ -337,7 +351,7 @@ class _StatusStrip extends ConsumerWidget {
             _StatTile(
               icon: Icons.speed_rounded,
               label: nextEraText(context, 'Sampling', '采样'),
-              value: settings.plotResolution.name,
+              value: plotResolutionLabel(context, settings.plotResolution),
               color: scheme.secondary,
               width: narrow ? (constraints.maxWidth - 10) / 2 : 180,
             ),
@@ -390,9 +404,8 @@ class _StatTile extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.labelSmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
                   ),
                   Text(
                     value,
@@ -445,7 +458,11 @@ class _ContinueCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  nextEraText(context, 'Continue where you left off', '继续上次的计算'),
+                  nextEraText(
+                    context,
+                    'Continue where you left off',
+                    '继续上次的计算',
+                  ),
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: scheme.onSecondaryContainer.withValues(alpha: 0.75),
                   ),
@@ -570,61 +587,65 @@ class _FeatureGrid extends StatelessWidget {
         return Wrap(
           spacing: tokens.cardGap,
           runSpacing: tokens.cardGap,
-          children: features.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            return SizedBox(
-              width: width,
-              child: StaggeredEntry(
-                index: index,
-                child: AppCard(
-                  padding: const EdgeInsets.all(16),
-                  onTap: () => context.go(item.path),
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: ShapeDecoration(
-                          color: item.color.withValues(alpha: 0.12),
-                          shape: tokens.keyShape(),
-                        ),
-                        child: Icon(item.icon, color: item.color, size: 22),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              item.label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleSmall
-                                  ?.copyWith(fontWeight: FontWeight.w700),
+          children: features
+              .asMap()
+              .entries
+              .map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                return SizedBox(
+                  width: width,
+                  child: StaggeredEntry(
+                    index: index,
+                    child: AppCard(
+                      padding: const EdgeInsets.all(16),
+                      onTap: () => context.go(item.path),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: ShapeDecoration(
+                              color: item.color.withValues(alpha: 0.12),
+                              shape: tokens.keyShape(),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              item.description,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
+                            child: Icon(item.icon, color: item.color, size: 22),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  item.label,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.w700),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  item.description,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          const Icon(Icons.chevron_right_rounded, size: 20),
+                        ],
                       ),
-                      const Icon(Icons.chevron_right_rounded, size: 20),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            );
-          }).toList(growable: false),
+                );
+              })
+              .toList(growable: false),
         );
       },
     );

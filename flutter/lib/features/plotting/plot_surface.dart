@@ -66,8 +66,7 @@ class PlotSurface extends ConsumerWidget {
       intersectionPoints: state.intersectionPoints,
       markedPoints: state.markedPoints,
       onMarkPoint: controller.addMarkedPoint,
-      onRemoveMarkPoint: (point) =>
-          controller.removeNearestMarkedPoint(point),
+      onRemoveMarkPoint: (point) => controller.removeNearestMarkedPoint(point),
       borderRadius: borderRadius,
       initialViewport: initialViewport,
       initialZoom: initialZoom,

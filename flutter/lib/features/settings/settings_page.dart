@@ -61,15 +61,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         'motion animation spring reduced 动效 动画 弹簧 减弱'.contains(search);
     final showPlot =
         search.isEmpty ||
-        'plot sampling grid labels curve 3d mesh 绘图 采样 网格 标签 曲线 三维'
-            .contains(search);
+        'plot sampling grid labels curve 3d mesh 绘图 采样 网格 标签 曲线 三维'.contains(
+          search,
+        );
     final showInput =
         search.isEmpty ||
         'input keyboard haptics history precision start page 输入 键盘 触感 历史 精度 启动'
             .contains(search);
     final showData =
-        search.isEmpty ||
-        'data history language 数据 历史 语言'.contains(search);
+        search.isEmpty || 'data history language 数据 历史 语言'.contains(search);
     final showAbout =
         search.isEmpty || 'about version license 关于 版本 许可'.contains(search);
 
@@ -82,30 +82,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         '所有选项即时生效，并保存在本设备。',
       ),
       actions: <Widget>[
-            AppTooltip(
-              message: strings.search,
-              child: IconButton(
-                onPressed: () => setState(() {
-                  _searching = !_searching;
-                  if (!_searching) {
-                    _search.clear();
-                    _query = '';
-                  }
-                }),
-                icon: Icon(
-                  _searching ? Icons.search_off_rounded : Icons.search_rounded,
-                ),
-              ),
+        AppTooltip(
+          message: strings.search,
+          child: IconButton(
+            onPressed: () => setState(() {
+              _searching = !_searching;
+              if (!_searching) {
+                _search.clear();
+                _query = '';
+              }
+            }),
+            icon: Icon(
+              _searching ? Icons.search_off_rounded : Icons.search_rounded,
             ),
-            AppTooltip(
-              message: strings.resetAll,
-              child: IconButton(
-                onPressed: () => _confirmReset(context),
-                icon: const Icon(Icons.restart_alt_rounded),
-              ),
-            ),
-            const SizedBox(width: 4),
-          ],
+          ),
+        ),
+        AppTooltip(
+          message: strings.resetAll,
+          child: IconButton(
+            onPressed: () => _confirmReset(context),
+            icon: const Icon(Icons.restart_alt_rounded),
+          ),
+        ),
+        const SizedBox(width: 4),
+      ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
@@ -131,77 +131,76 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ),
             const SizedBox(height: 12),
           ],
-              if (_query.isEmpty) ...<Widget>[
-                _PreviewCard(settings: settings),
-                const SizedBox(height: 18),
-              ],
-              if (showAppearance) ...<Widget>[
-                SectionHeader(
-                  title: strings.appearance,
-                  subtitle: strings.appearanceHint,
-                  icon: Icons.palette_outlined,
-                ),
-                AppCard(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: <Widget>[
-                      if (_matches('${strings.themeMode} ${strings.system}')) ...<Widget>[
-                        SettingsTile(
-                          icon: Icons.brightness_6_outlined,
-                          title: strings.themeMode,
-                          subtitle: strings.themeModeHint,
-                          trailing: _ThemeModeToggle(
-                            mode: settings.themeMode,
-                            onChanged: (mode) =>
-                                _update((s) => s.copyWith(themeMode: mode)),
-                          ),
-                        ),
-                        const SoftDivider(indent: 12, endIndent: 12),
-                      ],
-                      if (_matches('monet ${strings.dynamicColor}')) ...<Widget>[
-                        SettingsSwitchTile(
-                          icon: Icons.wallpaper_outlined,
-                          title: strings.dynamicColor,
-                          subtitle: _monetSubtitle(seeds.asData?.value),
-                          value: settings.monetEnabled,
-                          onChanged: (value) => _update(
-                            (s) => s.copyWith(monetEnabled: value),
-                          ),
-                        ),
-                        const SoftDivider(indent: 12, endIndent: 12),
-                      ],
-                      if (_matches('${strings.seedPalette} palette')) ...<Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+          if (_query.isEmpty) ...<Widget>[
+            _PreviewCard(settings: settings),
+            const SizedBox(height: 18),
+          ],
+          if (showAppearance) ...<Widget>[
+            SectionHeader(
+              title: strings.appearance,
+              subtitle: strings.appearanceHint,
+              icon: Icons.palette_outlined,
+            ),
+            AppCard(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  if (_matches(
+                    '${strings.themeMode} ${strings.system}',
+                  )) ...<Widget>[
+                    SettingsTile(
+                      icon: Icons.brightness_6_outlined,
+                      title: strings.themeMode,
+                      subtitle: strings.themeModeHint,
+                      trailing: _ThemeModeToggle(
+                        mode: settings.themeMode,
+                        onChanged: (mode) =>
+                            _update((s) => s.copyWith(themeMode: mode)),
+                      ),
+                    ),
+                    const SoftDivider(indent: 12, endIndent: 12),
+                  ],
+                  if (_matches('monet ${strings.dynamicColor}')) ...<Widget>[
+                    SettingsSwitchTile(
+                      icon: Icons.wallpaper_outlined,
+                      title: strings.dynamicColor,
+                      subtitle: _monetSubtitle(seeds.asData?.value),
+                      value: settings.monetEnabled,
+                      onChanged: (value) =>
+                          _update((s) => s.copyWith(monetEnabled: value)),
+                    ),
+                    const SoftDivider(indent: 12, endIndent: 12),
+                  ],
+                  if (_matches('${strings.seedPalette} palette')) ...<Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
                             children: <Widget>[
-                              Row(
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.color_lens_outlined,
-                                    size: 22,
-                                    color: scheme.onSurfaceVariant,
-                                  ),
-                                  const SizedBox(width: 14),
-                                  Expanded(
-                                    child: Text(
-                                      strings.seedPalette,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                  ),
-                                ],
+                              Icon(
+                                Icons.color_lens_outlined,
+                                size: 22,
+                                color: scheme.onSurfaceVariant,
                               ),
-                              const SizedBox(height: 10),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: SeedPalette.values.map((palette) {
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Text(
+                                  strings.seedPalette,
+                                  style: Theme.of(context).textTheme.bodyLarge
+                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: SeedPalette.values
+                                .map((palette) {
                                   final selected =
                                       settings.seedPalette == palette;
                                   return AppTooltip(
@@ -227,7 +226,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                                 )
                                               : CircleBorder(
                                                   side: BorderSide(
-                                                    color: scheme.outlineVariant,
+                                                    color:
+                                                        scheme.outlineVariant,
                                                   ),
                                                 ),
                                           shadows: selected
@@ -250,682 +250,671 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       ),
                                     ),
                                   );
-                                }).toList(growable: false),
-                              ),
-                            ],
+                                })
+                                .toList(growable: false),
                           ),
-                        ),
-                        const SoftDivider(indent: 12, endIndent: 12),
-                      ],
-                      if (_matches('${strings.paletteStyle} tonal vibrant')) ...<Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                strings.paletteStyle,
-                                style: Theme.of(context).textTheme.bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                strings.paletteStyleHint,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: scheme.onSurfaceVariant),
-                              ),
-                              const SizedBox(height: 10),
-                              SettingsChoice<MonetStyle>(
-                                values: MonetStyle.values,
-                                selected: settings.monetStyle,
-                                labelOf: (style) => _styleLabel(style, strings),
-                                onSelected: (style) => _update(
-                                  (s) => s.copyWith(monetStyle: style),
-                                ),
-                              ),
-                            ],
+                        ],
+                      ),
+                    ),
+                    const SoftDivider(indent: 12, endIndent: 12),
+                  ],
+                  if (_matches(
+                    '${strings.paletteStyle} tonal vibrant',
+                  )) ...<Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            strings.paletteStyle,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
-                        ),
-                        const SoftDivider(indent: 12, endIndent: 12),
-                      ],
-                      if (_matches(strings.contrast)) ...<Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                strings.contrast,
-                                style: Theme.of(context).textTheme.bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 10),
-                              SettingsChoice<MonetContrast>(
-                                values: MonetContrast.values,
-                                selected: settings.monetContrast,
-                                labelOf: (value) =>
-                                    _contrastLabel(value, strings),
-                                onSelected: (value) => _update(
-                                  (s) => s.copyWith(monetContrast: value),
-                                ),
-                              ),
-                            ],
+                          const SizedBox(height: 3),
+                          Text(
+                            strings.paletteStyleHint,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: scheme.onSurfaceVariant),
                           ),
-                        ),
-                        const SoftDivider(indent: 12, endIndent: 12),
-                      ],
-                      if (_matches(strings.intensity)) ...<Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                strings.intensity,
-                                style: Theme.of(context).textTheme.bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                _intensityDescription(l10n, settings.intensity),
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(color: scheme.onSurfaceVariant),
-                              ),
-                              const SizedBox(height: 10),
-                              SettingsChoice<ExpressiveIntensity>(
-                                values: ExpressiveIntensity.values,
-                                selected: settings.intensity,
-                                labelOf: (value) =>
-                                    _intensityLabel(value, strings),
-                                onSelected: (value) => _update(
-                                  (s) => s.copyWith(intensity: value),
-                                ),
-                              ),
-                            ],
+                          const SizedBox(height: 10),
+                          SettingsChoice<MonetStyle>(
+                            values: MonetStyle.values,
+                            selected: settings.monetStyle,
+                            labelOf: (style) => _styleLabel(style, strings),
+                            onSelected: (style) =>
+                                _update((s) => s.copyWith(monetStyle: style)),
                           ),
-                        ),
-                        const SoftDivider(indent: 12, endIndent: 12),
-                      ],
-                      if (_matches('${strings.shapes} corner')) ...<Widget>[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                strings.shapes,
-                                style: Theme.of(context).textTheme.bodyLarge
-                                    ?.copyWith(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 10),
-                              SettingsChoice<CornerStyle>(
-                                values: CornerStyle.values,
-                                selected: settings.cornerStyle,
-                                labelOf: (value) => value == CornerStyle.rounded
-                                    ? strings.rounded
-                                    : strings.squircle,
-                                iconOf: (value) => value == CornerStyle.rounded
-                                    ? Icons.crop_square_rounded
-                                    : Icons.blur_on_rounded,
-                                onSelected: (value) => _update(
-                                  (s) => s.copyWith(cornerStyle: value),
-                                ),
-                              ),
-                            ],
+                        ],
+                      ),
+                    ),
+                    const SoftDivider(indent: 12, endIndent: 12),
+                  ],
+                  if (_matches(strings.contrast)) ...<Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            strings.contrast,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
                           ),
-                        ),
-                        const SoftDivider(indent: 12, endIndent: 12),
-                      ],
-                      SettingsSlider(
-                        icon: Icons.format_size_rounded,
-                        title: strings.textScale,
-                        subtitle: strings.textScaleHint,
-                        value: settings.textScale,
-                        min: 0.85,
-                        max: 1.45,
-                        divisions: 12,
-                        valueLabel: (value) =>
-                            '${(value * 100).round()}%',
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(textScale: value)),
-                      ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      SettingsSwitchTile(
-                        icon: Icons.format_bold_rounded,
-                        title: strings.boldText,
-                        value: settings.boldText,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(boldText: value)),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.contrast_rounded,
-                        title: strings.highContrast,
-                        subtitle: strings.highContrastHint,
-                        value: settings.highContrast,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(highContrast: value)),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.touch_app_outlined,
-                        title: strings.largeTargets,
-                        value: settings.largeTouchTargets,
-                        onChanged: (value) => _update(
-                          (s) => s.copyWith(largeTouchTargets: value),
-                        ),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.info_outline_rounded,
-                        title: strings.tooltips,
-                        value: settings.showTooltips,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(showTooltips: value)),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-              ],
-              if (showMotion) ...<Widget>[
-                SectionHeader(
-                  title: strings.motion,
-                  subtitle: strings.motionHint,
-                  icon: Icons.animation_rounded,
-                ),
-                AppCard(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              strings.motionSpeed,
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 10),
-                            SettingsChoice<MotionSpeed>(
-                              values: MotionSpeed.values,
-                              selected: settings.motionSpeed,
-                              labelOf: (value) => switch (value) {
-                                MotionSpeed.calm => strings.calm,
-                                MotionSpeed.standard => strings.standard,
-                                MotionSpeed.brisk => strings.brisk,
-                                MotionSpeed.lively => strings.lively,
-                              },
-                              onSelected: (value) => _update(
-                                (s) => s.copyWith(motionSpeed: value),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              strings.reduceMotion,
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              strings.reduceMotionHint,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: scheme.onSurfaceVariant),
-                            ),
-                            const SizedBox(height: 10),
-                            SettingsChoice<ReduceMotionPreference>(
-                              values: ReduceMotionPreference.values,
-                              selected: settings.reduceMotion,
-                              labelOf: (value) => switch (value) {
-                                ReduceMotionPreference.system => strings.followSystem,
-                                ReduceMotionPreference.reduce => strings.alwaysReduce,
-                                ReduceMotionPreference.allow => strings.alwaysAllow,
-                              },
-                              onSelected: (value) => _update(
-                                (s) => s.copyWith(reduceMotion: value),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      SettingsSwitchTile(
-                        icon: Icons.draw_outlined,
-                        title: strings.animatePlot,
-                        subtitle: strings.animatePlotHint,
-                        value: settings.animatePlotDraw,
-                        onChanged: (value) => _update(
-                          (s) => s.copyWith(animatePlotDraw: value),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-              ],
-              if (showPlot) ...<Widget>[
-                SectionHeader(
-                  title: strings.plot,
-                  subtitle: strings.plotHint,
-                  icon: Icons.show_chart_rounded,
-                ),
-                AppCard(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              strings.resolution,
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              strings.resolutionHint,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: scheme.onSurfaceVariant),
-                            ),
-                            const SizedBox(height: 10),
-                            SettingsChoice<PlotResolution>(
-                              values: PlotResolution.values,
-                              selected: settings.plotResolution,
-                              labelOf: (value) => switch (value) {
-                                PlotResolution.adaptive => strings.adaptive,
-                                PlotResolution.balanced => '2.4k',
-                                PlotResolution.high => '4.8k',
-                                PlotResolution.ultra => '8k',
-                              },
-                              onSelected: (value) => _update(
-                                (s) => s.copyWith(plotResolution: value),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      SettingsSwitchTile(
-                        icon: Icons.auto_graph_rounded,
-                        title: strings.adaptiveSampling,
-                        subtitle: strings.adaptiveSamplingHint,
-                        value: settings.adaptiveSampling,
-                        onChanged: (value) => _update(
-                          (s) => s.copyWith(adaptiveSampling: value),
-                        ),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.sync_rounded,
-                        title: strings.autoResample,
-                        subtitle: strings.autoResampleHint,
-                        value: settings.autoResample,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(autoResample: value)),
-                      ),
-                      SettingsSlider(
-                        icon: Icons.line_weight_rounded,
-                        title: strings.curveThickness,
-                        value: settings.curveThickness,
-                        min: 1,
-                        max: 5,
-                        divisions: 20,
-                        valueLabel: (value) => '${value.toStringAsFixed(1)} px',
-                        onChanged: (value) => _update(
-                          (s) => s.copyWith(curveThickness: value),
-                        ),
-                      ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      SettingsSwitchTile(
-                        icon: Icons.grid_on_rounded,
-                        title: strings.grid,
-                        value: settings.showGrid,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(showGrid: value)),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.numbers_rounded,
-                        title: strings.axisLabels,
-                        value: settings.showAxisLabels,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(showAxisLabels: value)),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.ads_click_rounded,
-                        title: strings.tapToMark,
-                        value: settings.tapToMark,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(tapToMark: value)),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.zoom_in_map_rounded,
-                        title: strings.doubleTapZoom,
-                        value: settings.doubleTapZoom,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(doubleTapZoom: value)),
-                      ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              strings.plotBackground,
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 10),
-                            SettingsChoice<PlotBackgroundStyle>(
-                              values: PlotBackgroundStyle.values,
-                              selected: settings.plotBackground,
-                              labelOf: (value) => switch (value) {
-                                PlotBackgroundStyle.surface => strings.surface,
-                                PlotBackgroundStyle.container => strings.container,
-                                PlotBackgroundStyle.contrast => strings.contrastOption,
-                              },
-                              onSelected: (value) => _update(
-                                (s) => s.copyWith(plotBackground: value),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              strings.meshDensity,
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 10),
-                            SettingsChoice<MeshDensity>(
-                              values: MeshDensity.values,
-                              selected: settings.meshDensity,
-                              labelOf: (value) => switch (value) {
-                                MeshDensity.low => strings.low,
-                                MeshDensity.medium => strings.medium,
-                                MeshDensity.high => strings.high,
-                              },
-                              onSelected: (value) => _update(
-                                (s) => s.copyWith(meshDensity: value),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-              ],
-              if (showInput) ...<Widget>[
-                SectionHeader(
-                  title: strings.input,
-                  subtitle: strings.inputHint,
-                  icon: Icons.tune_rounded,
-                ),
-                AppCard(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              strings.quickPanel,
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              strings.quickPanelHint,
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: scheme.onSurfaceVariant),
-                            ),
-                            const SizedBox(height: 10),
-                            SettingsChoice<QuickPanelLayout>(
-                              values: QuickPanelLayout.values,
-                              selected: settings.quickPanelLayout,
-                              labelOf: (value) => switch (value) {
-                                QuickPanelLayout.automatic => strings.automatic,
-                                QuickPanelLayout.bottomSheet => strings.sheet,
-                                QuickPanelLayout.sidePanel => strings.sidePanel,
-                                QuickPanelLayout.dialog => strings.dialog,
-                              },
-                              onSelected: (value) => _update(
-                                (s) => s.copyWith(quickPanelLayout: value),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      SettingsSwitchTile(
-                        icon: Icons.vibration_rounded,
-                        title: strings.haptics,
-                        value: settings.haptics,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(haptics: value)),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.keyboard_return_rounded,
-                        title: strings.autoEvaluate,
-                        subtitle: strings.autoEvaluateHint,
-                        value: settings.autoEvaluate,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(autoEvaluate: value)),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.keyboard_command_key_rounded,
-                        title: strings.shortcuts,
-                        value: settings.keyboardShortcuts,
-                        onChanged: (value) => _update(
-                          (s) => s.copyWith(keyboardShortcuts: value),
-                        ),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.cleaning_services_outlined,
-                        title: strings.confirmReset,
-                        value: settings.confirmReset,
-                        onChanged: (value) =>
-                            _update((s) => s.copyWith(confirmReset: value)),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.functions_rounded,
-                        title: strings.precision,
-                        subtitle: strings.precisionHint,
-                        value: settings.numberPrecision != NumberPrecision.auto,
-                        onChanged: (value) => _update(
-                          (s) => s.copyWith(
-                            numberPrecision: value
-                                ? NumberPrecision.ten
-                                : NumberPrecision.auto,
-                          ),
-                        ),
-                      ),
-                      if (settings.numberPrecision != NumberPrecision.auto)
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
-                          child: SettingsChoice<NumberPrecision>(
-                            values: <NumberPrecision>[
-                              NumberPrecision.six,
-                              NumberPrecision.eight,
-                              NumberPrecision.ten,
-                              NumberPrecision.twelve,
-                            ],
-                            selected: settings.numberPrecision,
-                            labelOf: (value) =>
-                                '${value.digits} ${strings.digits}',
+                          const SizedBox(height: 10),
+                          SettingsChoice<MonetContrast>(
+                            values: MonetContrast.values,
+                            selected: settings.monetContrast,
+                            labelOf: (value) => _contrastLabel(value, strings),
                             onSelected: (value) => _update(
-                              (s) => s.copyWith(numberPrecision: value),
+                              (s) => s.copyWith(monetContrast: value),
                             ),
                           ),
-                        ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              strings.startPage,
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 10),
-                            SettingsChoice<StartPage>(
-                              values: StartPage.values,
-                              selected: settings.startPage,
-                              labelOf: (value) => switch (value) {
-                                StartPage.home => strings.home,
-                                StartPage.plotting => strings.plotting,
-                                StartPage.history => strings.history,
-                              },
-                              onSelected: (value) => _update(
-                                (s) => s.copyWith(startPage: value),
-                              ),
-                            ),
-                          ],
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
+                    const SoftDivider(indent: 12, endIndent: 12),
+                  ],
+                  if (_matches(strings.intensity)) ...<Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            strings.intensity,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            _intensityDescription(l10n, settings.intensity),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: scheme.onSurfaceVariant),
+                          ),
+                          const SizedBox(height: 10),
+                          SettingsChoice<ExpressiveIntensity>(
+                            values: ExpressiveIntensity.values,
+                            selected: settings.intensity,
+                            labelOf: (value) => _intensityLabel(value, strings),
+                            onSelected: (value) =>
+                                _update((s) => s.copyWith(intensity: value)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SoftDivider(indent: 12, endIndent: 12),
+                  ],
+                  if (_matches('${strings.shapes} corner')) ...<Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            strings.shapes,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 10),
+                          SettingsChoice<CornerStyle>(
+                            values: CornerStyle.values,
+                            selected: settings.cornerStyle,
+                            labelOf: (value) => value == CornerStyle.rounded
+                                ? strings.rounded
+                                : strings.squircle,
+                            iconOf: (value) => value == CornerStyle.rounded
+                                ? Icons.crop_square_rounded
+                                : Icons.blur_on_rounded,
+                            onSelected: (value) =>
+                                _update((s) => s.copyWith(cornerStyle: value)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SoftDivider(indent: 12, endIndent: 12),
+                  ],
+                  SettingsSlider(
+                    icon: Icons.format_size_rounded,
+                    title: strings.textScale,
+                    subtitle: strings.textScaleHint,
+                    value: settings.textScale,
+                    min: 0.85,
+                    max: 1.45,
+                    divisions: 12,
+                    valueLabel: (value) => '${(value * 100).round()}%',
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(textScale: value)),
                   ),
-                ),
-                const SizedBox(height: 18),
-              ],
-              if (showData) ...<Widget>[
-                SectionHeader(
-                  title: strings.data,
-                  subtitle: strings.dataHint,
-                  icon: Icons.storage_rounded,
-                ),
-                AppCard(
-                  padding: const EdgeInsets.all(8),
-                  child: Column(
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              strings.historyLimit,
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 10),
-                            SettingsChoice<int>(
-                              values: const <int>[25, 50, 100, 200],
-                              selected: settings.historyLimit,
-                              labelOf: (value) => '$value',
-                              onSelected: (value) => _update(
-                                (s) => s.copyWith(historyLimit: value),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SettingsSwitchTile(
-                        icon: Icons.bookmark_add_outlined,
-                        title: strings.autoSaveHistory,
-                        value: settings.autoSaveHistory,
-                        onChanged: (value) => _update(
-                          (s) => s.copyWith(autoSaveHistory: value),
-                        ),
-                      ),
-                      SettingsActionTile(
-                        icon: Icons.delete_sweep_outlined,
-                        title: strings.clearHistory,
-                        subtitle: strings.historyCount(history.length),
-                        onTap: history.isEmpty
-                            ? () {}
-                            : () => ref
-                                  .read(calculationHistoryProvider.notifier)
-                                  .clear(),
-                      ),
-                      const SoftDivider(indent: 12, endIndent: 12),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              strings.language,
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 10),
-                            SettingsChoice<AppLocale>(
-                              values: AppLocale.values,
-                              selected: settings.locale,
-                              labelOf: (value) => switch (value) {
-                                AppLocale.system => strings.followSystem,
-                                AppLocale.english => 'English',
-                                AppLocale.simplifiedChinese => '简体中文',
-                              },
-                              onSelected: (value) => _update(
-                                (s) => s.copyWith(locale: value),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  SettingsSwitchTile(
+                    icon: Icons.format_bold_rounded,
+                    title: strings.boldText,
+                    value: settings.boldText,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(boldText: value)),
                   ),
-                ),
-                const SizedBox(height: 18),
-              ],
-              if (showAbout) ...<Widget>[
-                SectionHeader(
-                  title: strings.about,
-                  icon: Icons.info_outline_rounded,
-                ),
-                AppCard(
-                  padding: const EdgeInsets.all(8),
-                  child: SettingsActionTile(
-                    icon: Icons.calculate_outlined,
-                    title: l10n.appTitle,
-                    subtitle: l10n.aboutTagline,
-                    onTap: () => context.go('/settings/about'),
+                  SettingsSwitchTile(
+                    icon: Icons.contrast_rounded,
+                    title: strings.highContrast,
+                    subtitle: strings.highContrastHint,
+                    value: settings.highContrast,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(highContrast: value)),
                   ),
-                ),
-              ],
-              if (_query.isNotEmpty &&
-                  !showAppearance &&
-                  !showMotion &&
-                  !showPlot &&
-                  !showInput &&
-                  !showData &&
-                  !showAbout)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 48),
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.search_off_rounded,
-                        size: 48,
-                        color: scheme.onSurfaceVariant,
+                  SettingsSwitchTile(
+                    icon: Icons.touch_app_outlined,
+                    title: strings.largeTargets,
+                    value: settings.largeTouchTargets,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(largeTouchTargets: value)),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.info_outline_rounded,
+                    title: strings.tooltips,
+                    value: settings.showTooltips,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(showTooltips: value)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+          if (showMotion) ...<Widget>[
+            SectionHeader(
+              title: strings.motion,
+              subtitle: strings.motionHint,
+              icon: Icons.animation_rounded,
+            ),
+            AppCard(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          strings.motionSpeed,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 10),
+                        SettingsChoice<MotionSpeed>(
+                          values: MotionSpeed.values,
+                          selected: settings.motionSpeed,
+                          labelOf: (value) => switch (value) {
+                            MotionSpeed.calm => strings.calm,
+                            MotionSpeed.standard => strings.standard,
+                            MotionSpeed.brisk => strings.brisk,
+                            MotionSpeed.lively => strings.lively,
+                          },
+                          onSelected: (value) =>
+                              _update((s) => s.copyWith(motionSpeed: value)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          strings.reduceMotion,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          strings.reduceMotionHint,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 10),
+                        SettingsChoice<ReduceMotionPreference>(
+                          values: ReduceMotionPreference.values,
+                          selected: settings.reduceMotion,
+                          labelOf: (value) => switch (value) {
+                            ReduceMotionPreference.system =>
+                              strings.followSystem,
+                            ReduceMotionPreference.reduce =>
+                              strings.alwaysReduce,
+                            ReduceMotionPreference.allow => strings.alwaysAllow,
+                          },
+                          onSelected: (value) =>
+                              _update((s) => s.copyWith(reduceMotion: value)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  SettingsSwitchTile(
+                    icon: Icons.draw_outlined,
+                    title: strings.animatePlot,
+                    subtitle: strings.animatePlotHint,
+                    value: settings.animatePlotDraw,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(animatePlotDraw: value)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+          if (showPlot) ...<Widget>[
+            SectionHeader(
+              title: strings.plot,
+              subtitle: strings.plotHint,
+              icon: Icons.show_chart_rounded,
+            ),
+            AppCard(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          strings.resolution,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          strings.resolutionHint,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 10),
+                        SettingsChoice<PlotResolution>(
+                          values: PlotResolution.values,
+                          selected: settings.plotResolution,
+                          labelOf: (value) => switch (value) {
+                            PlotResolution.adaptive => strings.adaptive,
+                            PlotResolution.balanced => '2.4k',
+                            PlotResolution.high => '4.8k',
+                            PlotResolution.ultra => '8k',
+                          },
+                          onSelected: (value) =>
+                              _update((s) => s.copyWith(plotResolution: value)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  SettingsSwitchTile(
+                    icon: Icons.auto_graph_rounded,
+                    title: strings.adaptiveSampling,
+                    subtitle: strings.adaptiveSamplingHint,
+                    value: settings.adaptiveSampling,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(adaptiveSampling: value)),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.sync_rounded,
+                    title: strings.autoResample,
+                    subtitle: strings.autoResampleHint,
+                    value: settings.autoResample,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(autoResample: value)),
+                  ),
+                  SettingsSlider(
+                    icon: Icons.line_weight_rounded,
+                    title: strings.curveThickness,
+                    value: settings.curveThickness,
+                    min: 1,
+                    max: 5,
+                    divisions: 20,
+                    valueLabel: (value) => '${value.toStringAsFixed(1)} px',
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(curveThickness: value)),
+                  ),
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  SettingsSwitchTile(
+                    icon: Icons.grid_on_rounded,
+                    title: strings.grid,
+                    value: settings.showGrid,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(showGrid: value)),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.numbers_rounded,
+                    title: strings.axisLabels,
+                    value: settings.showAxisLabels,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(showAxisLabels: value)),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.ads_click_rounded,
+                    title: strings.tapToMark,
+                    value: settings.tapToMark,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(tapToMark: value)),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.zoom_in_map_rounded,
+                    title: strings.doubleTapZoom,
+                    value: settings.doubleTapZoom,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(doubleTapZoom: value)),
+                  ),
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          strings.plotBackground,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 10),
+                        SettingsChoice<PlotBackgroundStyle>(
+                          values: PlotBackgroundStyle.values,
+                          selected: settings.plotBackground,
+                          labelOf: (value) => switch (value) {
+                            PlotBackgroundStyle.surface => strings.surface,
+                            PlotBackgroundStyle.container => strings.container,
+                            PlotBackgroundStyle.contrast =>
+                              strings.contrastOption,
+                          },
+                          onSelected: (value) =>
+                              _update((s) => s.copyWith(plotBackground: value)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          strings.meshDensity,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 10),
+                        SettingsChoice<MeshDensity>(
+                          values: MeshDensity.values,
+                          selected: settings.meshDensity,
+                          labelOf: (value) => switch (value) {
+                            MeshDensity.low => strings.low,
+                            MeshDensity.medium => strings.medium,
+                            MeshDensity.high => strings.high,
+                          },
+                          onSelected: (value) =>
+                              _update((s) => s.copyWith(meshDensity: value)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+          if (showInput) ...<Widget>[
+            SectionHeader(
+              title: strings.input,
+              subtitle: strings.inputHint,
+              icon: Icons.tune_rounded,
+            ),
+            AppCard(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          strings.quickPanel,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          strings.quickPanelHint,
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 10),
+                        SettingsChoice<QuickPanelLayout>(
+                          values: QuickPanelLayout.values,
+                          selected: settings.quickPanelLayout,
+                          labelOf: (value) => switch (value) {
+                            QuickPanelLayout.automatic => strings.automatic,
+                            QuickPanelLayout.bottomSheet => strings.sheet,
+                            QuickPanelLayout.sidePanel => strings.sidePanel,
+                            QuickPanelLayout.dialog => strings.dialog,
+                          },
+                          onSelected: (value) => _update(
+                            (s) => s.copyWith(quickPanelLayout: value),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  SettingsSwitchTile(
+                    icon: Icons.vibration_rounded,
+                    title: strings.haptics,
+                    value: settings.haptics,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(haptics: value)),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.keyboard_return_rounded,
+                    title: strings.autoEvaluate,
+                    subtitle: strings.autoEvaluateHint,
+                    value: settings.autoEvaluate,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(autoEvaluate: value)),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.keyboard_command_key_rounded,
+                    title: strings.shortcuts,
+                    value: settings.keyboardShortcuts,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(keyboardShortcuts: value)),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.cleaning_services_outlined,
+                    title: strings.confirmReset,
+                    value: settings.confirmReset,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(confirmReset: value)),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.functions_rounded,
+                    title: strings.precision,
+                    subtitle: strings.precisionHint,
+                    value: settings.numberPrecision != NumberPrecision.auto,
+                    onChanged: (value) => _update(
+                      (s) => s.copyWith(
+                        numberPrecision: value
+                            ? NumberPrecision.ten
+                            : NumberPrecision.auto,
                       ),
-                      const SizedBox(height: 12),
-                      Text(strings.noResults),
-                    ],
+                    ),
                   ),
-                ),
+                  if (settings.numberPrecision != NumberPrecision.auto)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+                      child: SettingsChoice<NumberPrecision>(
+                        values: <NumberPrecision>[
+                          NumberPrecision.six,
+                          NumberPrecision.eight,
+                          NumberPrecision.ten,
+                          NumberPrecision.twelve,
+                        ],
+                        selected: settings.numberPrecision,
+                        labelOf: (value) => '${value.digits} ${strings.digits}',
+                        onSelected: (value) =>
+                            _update((s) => s.copyWith(numberPrecision: value)),
+                      ),
+                    ),
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          strings.startPage,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 10),
+                        SettingsChoice<StartPage>(
+                          values: StartPage.values,
+                          selected: settings.startPage,
+                          labelOf: (value) => switch (value) {
+                            StartPage.home => strings.home,
+                            StartPage.plotting => strings.plotting,
+                            StartPage.history => strings.history,
+                          },
+                          onSelected: (value) =>
+                              _update((s) => s.copyWith(startPage: value)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+          if (showData) ...<Widget>[
+            SectionHeader(
+              title: strings.data,
+              subtitle: strings.dataHint,
+              icon: Icons.storage_rounded,
+            ),
+            AppCard(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          strings.historyLimit,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 10),
+                        SettingsChoice<int>(
+                          values: const <int>[25, 50, 100, 200],
+                          selected: settings.historyLimit,
+                          labelOf: (value) => '$value',
+                          onSelected: (value) =>
+                              _update((s) => s.copyWith(historyLimit: value)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SettingsSwitchTile(
+                    icon: Icons.bookmark_add_outlined,
+                    title: strings.autoSaveHistory,
+                    value: settings.autoSaveHistory,
+                    onChanged: (value) =>
+                        _update((s) => s.copyWith(autoSaveHistory: value)),
+                  ),
+                  SettingsActionTile(
+                    icon: Icons.delete_sweep_outlined,
+                    title: strings.clearHistory,
+                    subtitle: strings.historyCount(history.length),
+                    onTap: history.isEmpty
+                        ? () {}
+                        : () => ref
+                              .read(calculationHistoryProvider.notifier)
+                              .clear(),
+                  ),
+                  const SoftDivider(indent: 12, endIndent: 12),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          strings.language,
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 10),
+                        SettingsChoice<AppLocale>(
+                          values: AppLocale.values,
+                          selected: settings.locale,
+                          labelOf: (value) => switch (value) {
+                            AppLocale.system => strings.followSystem,
+                            AppLocale.english => 'English',
+                            AppLocale.simplifiedChinese => '简体中文',
+                          },
+                          onSelected: (value) =>
+                              _update((s) => s.copyWith(locale: value)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+          ],
+          if (showAbout) ...<Widget>[
+            SectionHeader(
+              title: strings.about,
+              icon: Icons.info_outline_rounded,
+            ),
+            AppCard(
+              padding: const EdgeInsets.all(8),
+              child: SettingsActionTile(
+                icon: Icons.calculate_outlined,
+                title: l10n.appTitle,
+                subtitle: l10n.aboutTagline,
+                onTap: () => context.go('/settings/about'),
+              ),
+            ),
+          ],
+          if (_query.isNotEmpty &&
+              !showAppearance &&
+              !showMotion &&
+              !showPlot &&
+              !showInput &&
+              !showData &&
+              !showAbout)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 48),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Icon(
+                    Icons.search_off_rounded,
+                    size: 48,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(height: 12),
+                  Text(strings.noResults),
+                ],
+              ),
+            ),
         ],
       ),
     );
@@ -1032,10 +1021,7 @@ class _PreviewCard extends StatelessWidget {
     final strings = _Strings(context);
     return AppCard(
       padding: const EdgeInsets.all(0),
-      gradient: <Color>[
-        scheme.primaryContainer,
-        scheme.tertiaryContainer,
-      ],
+      gradient: <Color>[scheme.primaryContainer, scheme.tertiaryContainer],
       child: Padding(
         padding: const EdgeInsets.all(18),
         child: Column(
@@ -1059,15 +1045,18 @@ class _PreviewCard extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         strings.previewTitle,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: scheme.onPrimaryContainer,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              color: scheme.onPrimaryContainer,
+                            ),
                       ),
                       Text(
                         strings.previewBody,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.onPrimaryContainer.withValues(alpha: 0.8),
+                          color: scheme.onPrimaryContainer.withValues(
+                            alpha: 0.8,
+                          ),
                         ),
                       ),
                     ],
@@ -1163,10 +1152,8 @@ class _Strings {
   String _t(String en, String zh) => nextEraText(context, en, zh);
 
   String get appearance => _t('Appearance', '外观');
-  String get appearanceHint => _t(
-    'Color, shape and type for the whole app',
-    '全局配色、形状与字体',
-  );
+  String get appearanceHint =>
+      _t('Color, shape and type for the whole app', '全局配色、形状与字体');
   String get theme => _t('Theme', '主题');
   String get themeMode => _t('Theme mode', '主题模式');
   String get themeModeHint =>
@@ -1174,23 +1161,20 @@ class _Strings {
   String get system => _t('System', '系统');
   String get light => _t('Light', '浅色');
   String get dark => _t('Dark', '深色');
-  String get dynamicColor => _t('Material You dynamic color', '莫奈取色（Material You）');
-  String get monetOffHint => _t('Off — using the seed palette', '已关闭 — 使用内置种子色');
+  String get dynamicColor =>
+      _t('Material You dynamic color', '莫奈取色（Material You）');
+  String get monetOffHint =>
+      _t('Off — using the seed palette', '已关闭 — 使用内置种子色');
   String get monetWallpaper =>
       _t('Wallpaper palette detected (Android 12+)', '已读取壁纸色调（Android 12+）');
-  String get monetAccent => _t(
-    'Using the system accent color',
-    '正在使用系统强调色',
-  );
+  String get monetAccent => _t('Using the system accent color', '正在使用系统强调色');
   String get monetFallback =>
       _t('No system palette here — using the seed color', '当前平台无系统取色 — 使用种子色');
   String get monetLoading => _t('Reading system colors…', '正在读取系统配色…');
   String get seedPalette => _t('Seed palette', '种子配色');
   String get paletteStyle => _t('Palette style', '配色风格');
-  String get paletteStyleHint => _t(
-    'Affects hue spread and container chroma',
-    '影响色相分布与容器饱和度',
-  );
+  String get paletteStyleHint =>
+      _t('Affects hue spread and container chroma', '影响色相分布与容器饱和度');
   String get contrast => _t('Tonal contrast', '色调对比度');
   String get intensity => _t('Expressive intensity', '表现力强度');
   String get shapes => _t('Corner shape', '圆角形状');
@@ -1207,10 +1191,8 @@ class _Strings {
   String get tooltips => _t('Tooltips', '工具提示');
 
   String get motion => _t('Motion', '动效');
-  String get motionHint => _t(
-    'Springs, page transitions and plot animation',
-    '弹簧、页面转场与绘图动画',
-  );
+  String get motionHint =>
+      _t('Springs, page transitions and plot animation', '弹簧、页面转场与绘图动画');
   String get motionSpeed => _t('Motion speed', '动效速度');
   String get calm => _t('Calm', '舒缓');
   String get standard => _t('Standard', '标准');
@@ -1227,21 +1209,15 @@ class _Strings {
       _t('Curves are drawn in when a result arrives', '结果生成时曲线逐段绘出');
 
   String get plot => _t('Plotting', '绘图');
-  String get plotHint => _t(
-    'Sampling, curve style and mesh quality',
-    '采样、曲线样式与网格质量',
-  );
+  String get plotHint =>
+      _t('Sampling, curve style and mesh quality', '采样、曲线样式与网格质量');
   String get resolution => _t('Sampling budget', '采样精度');
-  String get resolutionHint => _t(
-    'Higher budgets resolve fast oscillations',
-    '更高精度可还原快速振荡',
-  );
+  String get resolutionHint =>
+      _t('Higher budgets resolve fast oscillations', '更高精度可还原快速振荡');
   String get adaptive => _t('Adaptive', '自适应');
   String get adaptiveSampling => _t('Curvature-aware sampling', '曲率自适应采样');
-  String get adaptiveSamplingHint => _t(
-    'Adds samples where the curve bends or spikes',
-    '在曲线弯曲或突变处自动加密',
-  );
+  String get adaptiveSamplingHint =>
+      _t('Adds samples where the curve bends or spikes', '在曲线弯曲或突变处自动加密');
   String get autoResample => _t('Resample while panning', '平移时重新采样');
   String get autoResampleHint => _t(
     'Keeps the whole curve visible after zooming or dragging',
@@ -1262,15 +1238,11 @@ class _Strings {
   String get high => _t('High', '高');
 
   String get input => _t('Input & behaviour', '输入与行为');
-  String get inputHint => _t(
-    'Quick input, keyboard and history',
-    '快捷输入、键盘与历史记录',
-  );
+  String get inputHint =>
+      _t('Quick input, keyboard and history', '快捷输入、键盘与历史记录');
   String get quickPanel => _t('Quick input layout', '快捷输入面板布局');
-  String get quickPanelHint => _t(
-    'Automatic adapts to the window size',
-    '“自动”会随窗口尺寸选择底部弹层或侧栏',
-  );
+  String get quickPanelHint =>
+      _t('Automatic adapts to the window size', '“自动”会随窗口尺寸选择底部弹层或侧栏');
   String get automatic => _t('Automatic', '自动');
   String get sheet => _t('Bottom sheet', '底部弹层');
   String get sidePanel => _t('Side panel', '侧边面板');
@@ -1293,7 +1265,8 @@ class _Strings {
   String get data => _t('Data & language', '数据与语言');
   String get dataHint => _t('History size, storage and locale', '历史容量、存储与语言');
   String get historyLimit => _t('History entries kept', '保留的历史条数');
-  String get autoSaveHistory => _t('Save calculations automatically', '自动保存计算记录');
+  String get autoSaveHistory =>
+      _t('Save calculations automatically', '自动保存计算记录');
   String get clearHistory => _t('Clear history', '清空历史');
   String historyCount(int count) => _t('$count entries', '$count 条记录');
   String get language => _t('Language', '语言');
@@ -1318,8 +1291,10 @@ class _Strings {
   String get sampleChip => _t('Selected chip', '已选标签');
   String get dynamicOn => _t('Dynamic', '动态取色');
   String get dynamicOff => _t('Seed', '种子色');
-  String motionNote(double scale) =>
-      _t('Motion ×${scale.toStringAsFixed(2)}', '动效倍率 ×${scale.toStringAsFixed(2)}');
+  String motionNote(double scale) => _t(
+    'Motion ×${scale.toStringAsFixed(2)}',
+    '动效倍率 ×${scale.toStringAsFixed(2)}',
+  );
 
   String get indigo => _t('Indigo', '靛蓝');
   String get teal => _t('Teal', '青绿');

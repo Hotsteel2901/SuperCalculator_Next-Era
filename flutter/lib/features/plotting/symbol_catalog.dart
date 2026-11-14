@@ -771,9 +771,9 @@ abstract final class SymbolCatalog {
 
   static List<MathSymbol> search(String query) {
     if (query.trim().isEmpty) return const <MathSymbol>[];
-    return all.where((symbol) => symbol.matches(query.trim())).toList(
-      growable: false,
-    );
+    return all
+        .where((symbol) => symbol.matches(query.trim()))
+        .toList(growable: false);
   }
 }
 

@@ -14,9 +14,7 @@ Widget _host({
   AppSettings settings = AppSettings.defaults,
 }) {
   return ProviderScope(
-    overrides: [
-      initialSettingsProvider.overrideWithValue(settings),
-    ],
+    overrides: [initialSettingsProvider.overrideWithValue(settings)],
     child: MaterialApp(
       locale: const Locale('en'),
       localizationsDelegates: appLocalizationsDelegates,

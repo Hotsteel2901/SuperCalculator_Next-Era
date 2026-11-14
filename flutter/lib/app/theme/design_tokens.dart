@@ -221,9 +221,7 @@ class SuperCalcDesignTokens extends ThemeExtension<SuperCalcDesignTokens> {
   ShapeBorder surfaceShape({double? radius}) {
     final value = radius ?? cornerLarge;
     if (cornerStyle == CornerStyle.rounded) {
-      return RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(value),
-      );
+      return RoundedRectangleBorder(borderRadius: BorderRadius.circular(value));
     }
     return SquircleBorder(radius: value);
   }
@@ -232,8 +230,7 @@ class SuperCalcDesignTokens extends ThemeExtension<SuperCalcDesignTokens> {
   ShapeBorder circleShape() => const CircleBorder();
 
   /// A pill used for chips, segmented controls and compact buttons.
-  ShapeBorder pillShape() =>
-      const StadiumBorder();
+  ShapeBorder pillShape() => const StadiumBorder();
 
   /// A shape that reads as "expressive but calm" for small keys.
   ShapeBorder keyShape() => cornerStyle == CornerStyle.rounded

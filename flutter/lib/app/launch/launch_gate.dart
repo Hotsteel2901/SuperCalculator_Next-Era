@@ -11,11 +11,7 @@ import '../theme/squircle_border.dart';
 /// this in-app brand moment. It is deliberately short (≈1 s), skippable on tap,
 /// and collapses to a plain fade when the platform asks for reduced motion.
 class LaunchGate extends StatefulWidget {
-  const LaunchGate({
-    required this.child,
-    this.reduceMotion = false,
-    super.key,
-  });
+  const LaunchGate({required this.child, this.reduceMotion = false, super.key});
 
   final Widget child;
   final bool reduceMotion;
@@ -24,8 +20,7 @@ class LaunchGate extends StatefulWidget {
   State<LaunchGate> createState() => _LaunchGateState();
 }
 
-class _LaunchGateState extends State<LaunchGate>
-    with TickerProviderStateMixin {
+class _LaunchGateState extends State<LaunchGate> with TickerProviderStateMixin {
   late final AnimationController _mark = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 620),
@@ -161,11 +156,12 @@ class _LaunchBackdrop extends StatelessWidget {
                     const SizedBox(height: 22),
                     Text(
                       'SuperCalculator',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.6,
-                        color: scheme.onSurface,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.6,
+                            color: scheme.onSurface,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -213,10 +209,7 @@ class _BrandMark extends StatelessWidget {
           DecoratedBox(
             decoration: ShapeDecoration(
               gradient: LinearGradient(
-                colors: <Color>[
-                  scheme.primary,
-                  scheme.tertiary,
-                ],
+                colors: <Color>[scheme.primary, scheme.tertiary],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

@@ -73,6 +73,7 @@ class _DataAnalysisPageState extends ConsumerState<DataAnalysisPage> {
                 FormRow(
                   children: <Widget>[
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       initialValue: _model,
                       decoration: InputDecoration(
                         labelText: nextEraText(context, 'Fit model', '拟合模型'),
@@ -113,6 +114,7 @@ class _DataAnalysisPageState extends ConsumerState<DataAnalysisPage> {
                 FormRow(
                   children: <Widget>[
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       initialValue: _interpolationMethod,
                       decoration: InputDecoration(
                         labelText: nextEraText(context, 'Interpolation', '插值'),

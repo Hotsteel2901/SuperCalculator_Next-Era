@@ -196,86 +196,96 @@ class _AppShellState extends ConsumerState<AppShell> {
                   child: Wrap(
                     spacing: tokens.cardGap,
                     runSpacing: tokens.cardGap,
-                    children: destinations.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final item = entry.value;
-                      final selected =
-                          widget.location == item.path ||
-                          widget.location.startsWith('${item.path}/');
-                      final width =
-                          (MediaQuery.sizeOf(sheetContext).width - 32 - tokens.cardGap) /
+                    children: destinations
+                        .asMap()
+                        .entries
+                        .map((entry) {
+                          final index = entry.key;
+                          final item = entry.value;
+                          final selected =
+                              widget.location == item.path ||
+                              widget.location.startsWith('${item.path}/');
+                          final width =
+                              (MediaQuery.sizeOf(sheetContext).width -
+                                  32 -
+                                  tokens.cardGap) /
                               2;
-                      return SizedBox(
-                        width: width.clamp(140, 320),
-                        child: StaggeredEntry(
-                          index: index,
-                          child: AppCard(
-                            padding: const EdgeInsets.all(14),
-                            color: selected
-                                ? scheme.secondaryContainer
-                                : scheme.surfaceContainer,
-                            onTap: () {
-                              Navigator.of(sheetContext).pop();
-                              _go(item.path);
-                            },
-                            child: Row(
-                              children: <Widget>[
-                                Container(
-                                  padding: const EdgeInsets.all(9),
-                                  decoration: ShapeDecoration(
-                                    color: selected
-                                        ? scheme.onSecondaryContainer.withValues(
-                                            alpha: 0.12,
-                                          )
-                                        : scheme.primary.withValues(alpha: 0.1),
-                                    shape: tokens.keyShape(),
-                                  ),
-                                  child: Icon(
-                                    selected ? item.selectedIcon : item.icon,
-                                    size: 20,
-                                    color: selected
-                                        ? scheme.onSecondaryContainer
-                                        : scheme.primary,
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text(
-                                        item.label,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .labelLarge
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w700,
-                                            ),
+                          return SizedBox(
+                            width: width.clamp(140, 320),
+                            child: StaggeredEntry(
+                              index: index,
+                              child: AppCard(
+                                padding: const EdgeInsets.all(14),
+                                color: selected
+                                    ? scheme.secondaryContainer
+                                    : scheme.surfaceContainer,
+                                onTap: () {
+                                  Navigator.of(sheetContext).pop();
+                                  _go(item.path);
+                                },
+                                child: Row(
+                                  children: <Widget>[
+                                    Container(
+                                      padding: const EdgeInsets.all(9),
+                                      decoration: ShapeDecoration(
+                                        color: selected
+                                            ? scheme.onSecondaryContainer
+                                                  .withValues(alpha: 0.12)
+                                            : scheme.primary.withValues(
+                                                alpha: 0.1,
+                                              ),
+                                        shape: tokens.keyShape(),
                                       ),
-                                      Text(
-                                        item.description,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color: scheme.onSurfaceVariant,
-                                              fontSize: 11,
-                                            ),
+                                      child: Icon(
+                                        selected
+                                            ? item.selectedIcon
+                                            : item.icon,
+                                        size: 20,
+                                        color: selected
+                                            ? scheme.onSecondaryContainer
+                                            : scheme.primary,
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text(
+                                            item.label,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .labelLarge
+                                                ?.copyWith(
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                          ),
+                                          Text(
+                                            item.description,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall
+                                                ?.copyWith(
+                                                  color:
+                                                      scheme.onSurfaceVariant,
+                                                  fontSize: 11,
+                                                ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      );
-                    }).toList(growable: false),
+                          );
+                        })
+                        .toList(growable: false),
                   ),
                 ),
               ),
@@ -355,7 +365,8 @@ class _AppShellState extends ConsumerState<AppShell> {
                 destinations: destinations,
                 selectedIndex: selected,
                 expanded: expanded,
-                onToggle: () => setState(() => _userCollapsed = !_userCollapsed),
+                onToggle: () =>
+                    setState(() => _userCollapsed = !_userCollapsed),
                 onSelected: (index) => _go(destinations[index].path),
               ),
               Expanded(
@@ -363,10 +374,8 @@ class _AppShellState extends ConsumerState<AppShell> {
                   duration: tokens.scaled(const Duration(milliseconds: 260)),
                   switchInCurve: Curves.easeOutCubic,
                   switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: (child, animation) => FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  ),
+                  transitionBuilder: (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
                   child: KeyedSubtree(
                     key: ValueKey<String>(widget.location),
                     child: widget.child,
@@ -720,7 +729,9 @@ class _SidebarItem extends StatelessWidget {
       ),
     );
     return AppTooltip(
-      message: expanded ? item.description : '${item.label} · ${item.description}',
+      message: expanded
+          ? item.description
+          : '${item.label} · ${item.description}',
       child: PressableScale(
         onTap: onTap,
         pressedScale: 0.97,

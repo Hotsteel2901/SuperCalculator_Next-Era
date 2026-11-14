@@ -79,7 +79,9 @@ class _EquationsPageState extends ConsumerState<EquationsPage> {
                   ),
                   style: const TextStyle(fontFamily: 'monospace'),
                 ),
-                const SizedBox(height: 12),
+                // The second field carries a helper line; the next row of
+                // fields needs extra room so their labels do not sit on it.
+                const SizedBox(height: 18),
                 FormRow(
                   children: <Widget>[
                     TextField(

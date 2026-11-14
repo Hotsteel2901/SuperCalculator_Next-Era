@@ -32,7 +32,11 @@ class AppTooltip extends ConsumerWidget {
       // widget tests) keep the default tooltip behaviour.
     }
     if (!enabled || message.isEmpty) return child;
-    return Tooltip(message: message, verticalOffset: verticalOffset, child: child);
+    return Tooltip(
+      message: message,
+      verticalOffset: verticalOffset,
+      child: child,
+    );
   }
 }
 
@@ -105,9 +109,7 @@ class AppCard extends StatelessWidget {
               Positioned.fill(
                 child: IgnorePointer(
                   child: DecoratedBox(
-                    decoration: ShapeDecoration(
-                      shape: outline,
-                    ),
+                    decoration: ShapeDecoration(shape: outline),
                   ),
                 ),
               ),
@@ -238,12 +240,19 @@ class StatusPill extends StatelessWidget {
             Icon(icon, size: compact ? 13 : 15, color: tone),
             const SizedBox(width: 5),
           ],
-          Text(
-            label,
-            style: (compact
-                    ? Theme.of(context).textTheme.labelSmall
-                    : Theme.of(context).textTheme.labelMedium)
-                ?.copyWith(color: tone, fontWeight: FontWeight.w700),
+          // Pills live in tight spots (hero corners, plot toolbars); a long
+          // label must shrink instead of overflowing its stadium.
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style:
+                  (compact
+                          ? Theme.of(context).textTheme.labelSmall
+                          : Theme.of(context).textTheme.labelMedium)
+                      ?.copyWith(color: tone, fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),
@@ -334,11 +343,7 @@ class SettingsTile extends StatelessWidget {
       ),
       child: onTap == null
           ? content
-          : PressableScale(
-              onTap: onTap,
-              pressedScale: 0.99,
-              child: content,
-            ),
+          : PressableScale(onTap: onTap, pressedScale: 0.99, child: content),
     );
   }
 }
@@ -367,10 +372,7 @@ class SettingsSwitchTile extends StatelessWidget {
       subtitle: subtitle,
       icon: icon,
       onTap: () => onChanged(!value),
-      trailing: Switch.adaptive(
-        value: value,
-        onChanged: onChanged,
-      ),
+      trailing: Switch.adaptive(value: value, onChanged: onChanged),
     );
   }
 }
@@ -399,32 +401,36 @@ class SettingsChoice<T> extends StatelessWidget {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
-      children: values.map((value) {
-        final isSelected = value == selected;
-        return ChoiceChip(
-          selected: isSelected,
-          showCheckmark: false,
-          avatar: iconOf == null
-              ? null
-              : Icon(
-                  iconOf!(value),
-                  size: 16,
-                  color: isSelected
-                      ? Theme.of(context).colorScheme.onSecondaryContainer
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          label: AnimatedDefaultTextStyle(
-            duration: tokens.scaled(const Duration(milliseconds: 180)),
-            style:
-                Theme.of(context).textTheme.labelLarge?.copyWith(
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                ) ??
-                const TextStyle(),
-            child: Text(labelOf(value)),
-          ),
-          onSelected: (_) => onSelected(value),
-        );
-      }).toList(growable: false),
+      children: values
+          .map((value) {
+            final isSelected = value == selected;
+            return ChoiceChip(
+              selected: isSelected,
+              showCheckmark: false,
+              avatar: iconOf == null
+                  ? null
+                  : Icon(
+                      iconOf!(value),
+                      size: 16,
+                      color: isSelected
+                          ? Theme.of(context).colorScheme.onSecondaryContainer
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              label: AnimatedDefaultTextStyle(
+                duration: tokens.scaled(const Duration(milliseconds: 180)),
+                style:
+                    Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                    ) ??
+                    const TextStyle(),
+                child: Text(labelOf(value)),
+              ),
+              onSelected: (_) => onSelected(value),
+            );
+          })
+          .toList(growable: false),
     );
   }
 }
@@ -471,9 +477,8 @@ class SettingsSlider extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               StatusPill(
@@ -488,9 +493,8 @@ class SettingsSlider extends StatelessWidget {
               padding: const EdgeInsets.only(left: 0, top: 2),
               child: Text(
                 subtitle!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: scheme.onSurfaceVariant),
               ),
             ),
           Slider(
@@ -530,9 +534,7 @@ class SettingsActionTile extends StatelessWidget {
       subtitle: subtitle,
       icon: icon,
       onTap: onTap,
-      trailing:
-          trailing ??
-          const Icon(Icons.chevron_right_rounded, size: 22),
+      trailing: trailing ?? const Icon(Icons.chevron_right_rounded, size: 22),
     );
   }
 }
@@ -554,6 +556,55 @@ class SoftDivider extends StatelessWidget {
         thickness: 1,
         color: scheme.outlineVariant.withValues(alpha: 0.4),
       ),
+    );
+  }
+}
+
+/// A text field with its label *above* the box instead of floating inside it.
+///
+/// Material's floating label needs room to travel; in a dense form (two fields
+/// stacked with a few pixels between them) the floated label ends up sitting on
+/// the gap and reads as if it belongs to the field above. A caption keeps the
+/// meaning clear and the alignment stable.
+class LabeledField extends StatelessWidget {
+  const LabeledField({
+    required this.label,
+    required this.child,
+    this.trailing,
+    super.key,
+  });
+
+  final String label;
+  final Widget child;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsetsDirectional.only(start: 4, bottom: 6),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: textTheme.labelMedium?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              ?trailing,
+            ],
+          ),
+        ),
+        child,
+      ],
     );
   }
 }

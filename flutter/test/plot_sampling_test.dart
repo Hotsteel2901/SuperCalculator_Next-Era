@@ -93,7 +93,10 @@ void main() {
 
       expect(points.length, greaterThan(500));
       for (final point in points) {
-        expect(math.sqrt(point.x * point.x + point.y * point.y), closeTo(1, 1e-9));
+        expect(
+          math.sqrt(point.x * point.x + point.y * point.y),
+          closeTo(1, 1e-9),
+        );
       }
       final first = points.first;
       final last = points.last;

@@ -5,6 +5,7 @@ import '../../app/theme/design_tokens.dart';
 import '../../core/plot/interactive_plot_view.dart';
 import '../../core/plot/plot_viewport.dart';
 import '../../core/settings/app_settings.dart';
+import '../../core/settings/settings_labels.dart';
 import '../../core/ui/expressive/expressive_widgets.dart';
 import '../../core/ui/feature_widgets.dart';
 import 'calculator_controller.dart';
@@ -64,9 +65,7 @@ class _PlotFullscreenPageState extends ConsumerState<PlotFullscreenPage> {
             child: IconButton(
               onPressed: () => setState(() => _showDetails = !_showDetails),
               icon: Icon(
-                _showDetails
-                    ? Icons.info_outline_rounded
-                    : Icons.info_rounded,
+                _showDetails ? Icons.info_outline_rounded : Icons.info_rounded,
               ),
             ),
           ),
@@ -128,10 +127,10 @@ class _PlotFullscreenPageState extends ConsumerState<PlotFullscreenPage> {
                       icon: Icons.texture_rounded,
                       label: nextEraText(
                         context,
-                        '${_resolutionLabel(context, settings.plotResolution)} · '
-                            '${_meshLabel(context, settings.meshDensity)} mesh',
-                        '${_resolutionLabel(context, settings.plotResolution)} · '
-                            '${_meshLabel(context, settings.meshDensity)}网格',
+                        '${plotResolutionLabel(context, settings.plotResolution)} · '
+                            '${meshDensityLabel(context, settings.meshDensity)} mesh',
+                        '${plotResolutionLabel(context, settings.plotResolution)} · '
+                            '${meshDensityLabel(context, settings.meshDensity)}网格',
                       ),
                     ),
                     StatusPill(
@@ -150,18 +149,3 @@ class _PlotFullscreenPageState extends ConsumerState<PlotFullscreenPage> {
     );
   }
 }
-
-String _resolutionLabel(BuildContext context, PlotResolution value) =>
-    switch (value) {
-      PlotResolution.adaptive => nextEraText(context, 'Adaptive', '自适应'),
-      PlotResolution.balanced => nextEraText(context, 'Balanced', '均衡'),
-      PlotResolution.high => nextEraText(context, 'High', '高'),
-      PlotResolution.ultra => nextEraText(context, 'Ultra', '超高'),
-    };
-
-String _meshLabel(BuildContext context, MeshDensity value) =>
-    switch (value) {
-      MeshDensity.low => nextEraText(context, 'Low', '低密度'),
-      MeshDensity.medium => nextEraText(context, 'Medium', '中密度'),
-      MeshDensity.high => nextEraText(context, 'High', '高密度'),
-    };

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:material_ui/material_ui.dart';
 
 import '../settings/app_settings.dart';
@@ -119,7 +120,9 @@ class FunctionPlotPainter extends CustomPainter {
       return;
     }
 
-    final finite = points.where((point) => point.isFinite).toList(growable: false);
+    final finite = points
+        .where((point) => point.isFinite)
+        .toList(growable: false);
     if (finite.isEmpty) {
       _drawMarkers(canvas, plotRect, visible);
       canvas.restore();
@@ -233,7 +236,8 @@ class FunctionPlotPainter extends CustomPainter {
       }
       final jump = delta.dy.abs();
       final lastData = previousData;
-      final asymptote = jump > plotRect.height * 0.9 &&
+      final asymptote =
+          jump > plotRect.height * 0.9 &&
           lastData != null &&
           (point.y - lastData.y).abs() > visible.ySpan * 0.6;
       if (asymptote) {
@@ -320,11 +324,7 @@ class FunctionPlotPainter extends CustomPainter {
     final multiple = contours.length > 1;
     for (final level in contours) {
       final base = multiple
-          ? Color.lerp(
-              scheme.primary,
-              scheme.tertiary,
-              level.normalized,
-            )!
+          ? Color.lerp(scheme.primary, scheme.tertiary, level.normalized)!
           : scheme.primary;
       final paint = Paint()
         ..color = base.withValues(alpha: multiple ? 0.82 : 1)
@@ -476,7 +476,9 @@ class FunctionPlotPainter extends CustomPainter {
       );
       if (showTickLabels) {
         final label = _tickLabel(yValue, yStep, labelStyle);
-        final labelX = math.max(0.0, plotRect.left - label.width - 4).toDouble();
+        final labelX = math
+            .max(0.0, plotRect.left - label.width - 4)
+            .toDouble();
         final labelY = (y - label.height / 2)
             .clamp(0.0, math.max(0.0, size.height - label.height).toDouble())
             .toDouble();
@@ -541,7 +543,9 @@ class FunctionPlotPainter extends CustomPainter {
   TextPainter _tickLabel(double value, double step, TextStyle style) {
     final text = _formatTick(value, step);
     final cached = _labelCache[text];
-    if (cached != null && cached.$1 == style.color && cached.$2 == style.fontSize) {
+    if (cached != null &&
+        cached.$1 == style.color &&
+        cached.$2 == style.fontSize) {
       return cached.$3;
     }
     final painter = TextPainter(
@@ -558,13 +562,20 @@ class FunctionPlotPainter extends CustomPainter {
       <String, (Color?, double?, TextPainter)>{};
 
   String _formatTick(double value, double step) {
+    // Ticks are produced as `start + index * step`, so the zero tick often
+    // arrives as something like -2.8e-16. Treating that as a real value printed
+    // "-2.8e-16" on the axis; snap anything far below one step to zero.
+    if (value.abs() < step.abs() * 1e-6 || (step == 0 && value.abs() < 1e-12)) {
+      return '0';
+    }
     final magnitude = value.abs();
     if (magnitude >= 1e5 || (magnitude > 0 && magnitude < 1e-3)) {
       return value.toStringAsPrecision(2);
     }
     var decimals = 0;
     while (decimals < 8 &&
-        ((step * math.pow(10, decimals)) - (step * math.pow(10, decimals)).round())
+        ((step * math.pow(10, decimals)) -
+                    (step * math.pow(10, decimals)).round())
                 .abs() >
             1e-7) {
       decimals++;
@@ -885,14 +896,7 @@ class _PathCacheKey {
 }
 
 class _SurfaceCell {
-  const _SurfaceCell(
-    this.a,
-    this.b,
-    this.c,
-    this.d,
-    this.depth,
-    this.zLevel,
-  );
+  const _SurfaceCell(this.a, this.b, this.c, this.d, this.depth, this.zLevel);
 
   final Offset a;
   final Offset b;

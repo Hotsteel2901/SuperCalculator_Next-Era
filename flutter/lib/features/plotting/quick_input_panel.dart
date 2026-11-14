@@ -104,9 +104,8 @@ class QuickInputPanel extends ConsumerStatefulWidget {
         await showGeneralDialog<void>(
           context: context,
           barrierDismissible: true,
-          barrierLabel: MaterialLocalizations.of(
-            context,
-          ).modalBarrierDismissLabel,
+          barrierLabel: MaterialLocalizations.of(context)
+              .modalBarrierDismissLabel,
           barrierColor: Colors.black.withValues(alpha: 0.32),
           transitionDuration: const Duration(milliseconds: 300),
           pageBuilder: (dialogContext, _, _) => Align(
@@ -144,10 +143,7 @@ class QuickInputPanel extends ConsumerStatefulWidget {
     }
   }
 
-  static QuickPanelLayout _resolveLayout(
-    QuickPanelLayout layout,
-    Size size,
-  ) {
+  static QuickPanelLayout _resolveLayout(QuickPanelLayout layout, Size size) {
     if (layout != QuickPanelLayout.automatic) {
       // A side panel cannot fit on a phone; fall back to the sheet.
       if (layout == QuickPanelLayout.sidePanel && size.width < 720) {
@@ -237,7 +233,9 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
     return value.copyWith(
       selection: TextSelection(
         baseOffset: selection.baseOffset.clamp(0, value.text.length).toInt(),
-        extentOffset: selection.extentOffset.clamp(0, value.text.length).toInt(),
+        extentOffset: selection.extentOffset
+            .clamp(0, value.text.length)
+            .toInt(),
         affinity: selection.affinity,
         isDirectional: selection.isDirectional,
       ),
@@ -274,7 +272,9 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
             );
       final suffix = symbol.caretBack == 0
           ? ''
-          : symbol.insertion.substring(symbol.insertion.length - symbol.caretBack);
+          : symbol.insertion.substring(
+              symbol.insertion.length - symbol.caretBack,
+            );
       replacement = '$prefix$selectedText$suffix';
       caret = selection.start + replacement.length;
     } else if (symbol.insertion == '(' ||
@@ -426,7 +426,10 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
         key == LogicalKeyboardKey.arrowDown) {
       final next = switch (key) {
         LogicalKeyboardKey.arrowLeft => math.max(0, index - 1),
-        LogicalKeyboardKey.arrowRight => math.min(symbols.length - 1, index + 1),
+        LogicalKeyboardKey.arrowRight => math.min(
+          symbols.length - 1,
+          index + 1,
+        ),
         LogicalKeyboardKey.arrowUp => math.max(0, index - _columns),
         _ => math.min(symbols.length - 1, index + _columns),
       };
@@ -486,19 +489,19 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
             'Arrows move · Enter inserts · long-press pins · Ctrl/⌘+Z undo',
             '方向键移动 · 回车插入 · 长按收藏 · Ctrl/⌘+Z 撤销',
           ),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: scheme.onSurfaceVariant,
-            fontSize: 10.5,
-          ),
+          style: Theme.of(context).textTheme.labelSmall
+              ?.copyWith(color: scheme.onSurfaceVariant, fontSize: 10.5),
         ),
       ],
     );
 
     return CallbackShortcuts(
       bindings: <ShortcutActivator, VoidCallback>{
-        const SingleActivator(LogicalKeyboardKey.keyZ, control: true): _undoStep,
+        const SingleActivator(LogicalKeyboardKey.keyZ, control: true):
+            _undoStep,
         const SingleActivator(LogicalKeyboardKey.keyZ, meta: true): _undoStep,
-        const SingleActivator(LogicalKeyboardKey.keyY, control: true): _redoStep,
+        const SingleActivator(LogicalKeyboardKey.keyY, control: true):
+            _redoStep,
         const SingleActivator(LogicalKeyboardKey.keyY, meta: true): _redoStep,
         const SingleActivator(LogicalKeyboardKey.keyF, control: true): () {
           _searchFocus.requestFocus();
@@ -543,9 +546,8 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
             children: <Widget>[
               Text(
                 nextEraText(context, 'Quick input', '快捷输入'),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w800),
               ),
               Text(
                 nextEraText(
@@ -553,9 +555,8 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                   'Insert symbols without leaving the flow',
                   '不打断输入，直接插入符号',
                 ),
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.labelSmall
+                    ?.copyWith(color: scheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -627,9 +628,8 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                 children: <Widget>[
                   Text(
                     nextEraText(context, 'Expression', '表达式'),
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.labelSmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
                   ),
                   const Spacer(),
                   StatusPill(
@@ -670,25 +670,22 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                 children: <Widget>[
                   Text(
                     '${value.text.length} ${nextEraText(context, 'chars', '字符')}',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.labelSmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
                   ),
                   const SizedBox(width: 10),
                   Text(
                     '${nextEraText(context, 'caret', '光标')} '
                     '${value.selection.baseOffset.clamp(0, value.text.length)}',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.labelSmall
+                        ?.copyWith(color: scheme.onSurfaceVariant),
                   ),
                   const Spacer(),
                   if (status.hasTrailingOperator)
                     Text(
                       nextEraText(context, 'Incomplete', '表达式未完成'),
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: scheme.tertiary,
-                      ),
+                      style: Theme.of(context).textTheme.labelSmall
+                          ?.copyWith(color: scheme.tertiary),
                     ),
                 ],
               ),
@@ -873,9 +870,8 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
           const SizedBox(width: 6),
           Text(
             nextEraText(context, 'Suggested', '建议'),
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.labelSmall
+                ?.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -898,10 +894,11 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                       alignment: Alignment.center,
                       child: Text(
                         symbol.label,
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontFamily: 'monospace',
-                          color: scheme.onTertiaryContainer,
-                        ),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              fontFamily: 'monospace',
+                              color: scheme.onTertiaryContainer,
+                            ),
                       ),
                     ),
                   );
@@ -947,9 +944,8 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -966,10 +962,7 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
     return LayoutBuilder(
       builder: (context, constraints) {
         const minExtent = 74.0;
-        final columns = math.max(
-          3,
-          (constraints.maxWidth / minExtent).floor(),
-        );
+        final columns = math.max(3, (constraints.maxWidth / minExtent).floor());
         _columns = columns;
         return GridView.builder(
           padding: const EdgeInsets.only(bottom: 4),
@@ -1024,9 +1017,8 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                 'Expressions you plot will appear here',
                 '绘制过的表达式会显示在这里',
               ),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: scheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -1065,17 +1057,15 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
                       _expressionFromHistory(entry.expression),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontFamily: 'monospace',
-                      ),
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(fontFamily: 'monospace'),
                     ),
                     Text(
                       entry.result,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
+                      style: Theme.of(context).textTheme.labelSmall
+                          ?.copyWith(color: scheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -1121,7 +1111,11 @@ class _QuickInputPanelState extends ConsumerState<QuickInputPanel> {
         ),
         _ActionIcon(
           icon: Icons.backspace_outlined,
-          tooltip: nextEraText(context, 'Backspace (hold to repeat)', '退格（长按连续删除）'),
+          tooltip: nextEraText(
+            context,
+            'Backspace (hold to repeat)',
+            '退格（长按连续删除）',
+          ),
           onPressed: _backspace,
           onLongPress: _startRepeatBackspace,
           onLongPressEnd: _stopRepeat,
@@ -1208,7 +1202,8 @@ class _SymbolKey extends StatelessWidget {
     final tokens = SuperCalcDesignTokens.of(context);
     return Semantics(
       button: true,
-      label: '${symbol.label} — ${nextEraText(context, symbol.descriptionEn, symbol.descriptionZh)}',
+      label:
+          '${symbol.label} — ${nextEraText(context, symbol.descriptionEn, symbol.descriptionZh)}',
       child: AppTooltip(
         message:
             '${nextEraText(context, symbol.descriptionEn, symbol.descriptionZh)}\n'
@@ -1259,11 +1254,7 @@ class _SymbolKey extends StatelessWidget {
                   Positioned(
                     top: 3,
                     right: 3,
-                    child: Icon(
-                      Icons.star_rounded,
-                      size: 10,
-                      color: accent,
-                    ),
+                    child: Icon(Icons.star_rounded, size: 10, color: accent),
                   ),
               ],
             ),
@@ -1356,7 +1347,8 @@ class _ExpressionStatus {
     }
     if (stack.isNotEmpty) balanced = false;
     final last = trimmed[trimmed.length - 1];
-    final trailing = RegExp(r'[+\-*/^<>=!,]').hasMatch(last) ||
+    final trailing =
+        RegExp(r'[+\-*/^<>=!,]').hasMatch(last) ||
         RegExp(r'\bmod\b$').hasMatch(trimmed);
     return _ExpressionStatus(
       isEmpty: false,

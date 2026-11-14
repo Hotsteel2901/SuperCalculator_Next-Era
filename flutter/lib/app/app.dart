@@ -102,7 +102,9 @@ class _SuperCalculatorAppState extends ConsumerState<SuperCalculatorApp>
         .accessibilityFeatures
         .disableAnimations;
     final reduceMotion = settings.shouldReduceMotion(platformReduceMotion);
-    final dynamicSeed = settings.monetEnabled ? seeds.asData?.value.seedColor : null;
+    final dynamicSeed = settings.monetEnabled
+        ? seeds.asData?.value.seedColor
+        : null;
     final (light, dark) = _themesFor(settings, dynamicSeed, reduceMotion);
 
     return MaterialApp.router(
@@ -128,9 +130,7 @@ class _SuperCalculatorAppState extends ConsumerState<SuperCalculatorApp>
             .clamp(0.8, 2.0)
             .toDouble();
         return MediaQuery(
-          data: media.copyWith(
-            textScaler: TextScaler.linear(effectiveScale),
-          ),
+          data: media.copyWith(textScaler: TextScaler.linear(effectiveScale)),
           child: LaunchGate(
             reduceMotion: reduceMotion,
             child: child ?? const SizedBox.shrink(),

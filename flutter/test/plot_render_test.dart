@@ -162,7 +162,12 @@ void main() {
     final render = await _render(
       mode: 'parametric',
       points: points,
-      viewport: const PlotViewport(xMin: -1.4, xMax: 1.4, yMin: -1.4, yMax: 1.4),
+      viewport: const PlotViewport(
+        xMin: -1.4,
+        xMax: 1.4,
+        yMin: -1.4,
+        yMax: 1.4,
+      ),
     );
     render.dump('parametric');
     expect(render.paintedRatio, greaterThan(0.02));

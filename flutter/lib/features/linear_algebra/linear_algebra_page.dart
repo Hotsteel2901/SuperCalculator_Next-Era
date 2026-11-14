@@ -97,6 +97,7 @@ class _LinearAlgebraPageState extends ConsumerState<LinearAlgebraPage> {
                 FormRow(
                   children: <Widget>[
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       initialValue: _operation,
                       decoration: InputDecoration(
                         labelText: nextEraText(context, 'Operation', '运算'),
@@ -160,6 +161,7 @@ class _LinearAlgebraPageState extends ConsumerState<LinearAlgebraPage> {
                     _field(_sparseRows, 'Rows', '行数'),
                     _field(_sparseColumns, 'Columns', '列数'),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       initialValue: _sparseOperation,
                       decoration: InputDecoration(
                         labelText: nextEraText(context, 'Operation', '运算'),

@@ -78,6 +78,7 @@ class _OdePageState extends ConsumerState<OdePage> {
                     _numberField(_xEnd, nextEraText(context, 'x end', '终点 x')),
                     _numberField(_steps, nextEraText(context, 'Steps', '步数')),
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       initialValue: _method,
                       decoration: InputDecoration(
                         labelText: nextEraText(context, 'Method', '方法'),

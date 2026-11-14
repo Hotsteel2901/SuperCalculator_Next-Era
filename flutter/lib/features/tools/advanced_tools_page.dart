@@ -178,6 +178,7 @@ class _AdvancedToolsPageState extends ConsumerState<AdvancedToolsPage> {
           FormRow(
             children: <Widget>[
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: _complexOperation,
                 decoration: InputDecoration(
                   labelText: nextEraText(context, 'Operation', '运算'),
@@ -239,6 +240,7 @@ class _AdvancedToolsPageState extends ConsumerState<AdvancedToolsPage> {
               _numberField(_integer2, 'm', 'm'),
               _numberField(_modulus, 'modulus', '模数'),
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: _integerOperation,
                 decoration: InputDecoration(
                   labelText: nextEraText(context, 'Operation', '运算'),
@@ -270,6 +272,7 @@ class _AdvancedToolsPageState extends ConsumerState<AdvancedToolsPage> {
                     setState(() => _integerOperation = value ?? 'factor'),
               ),
               DropdownButtonFormField<int>(
+                isExpanded: true,
                 initialValue: _bitwiseWidth,
                 decoration: InputDecoration(
                   labelText: nextEraText(context, 'Bit width', '位宽'),
@@ -316,6 +319,7 @@ class _AdvancedToolsPageState extends ConsumerState<AdvancedToolsPage> {
           FormRow(
             children: <Widget>[
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: _distribution,
                 decoration: InputDecoration(
                   labelText: nextEraText(context, 'Distribution', '分布'),
@@ -378,6 +382,7 @@ class _AdvancedToolsPageState extends ConsumerState<AdvancedToolsPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: _financeOperation,
             decoration: InputDecoration(
               labelText: nextEraText(context, 'Operation', '运算'),
@@ -462,6 +467,7 @@ class _AdvancedToolsPageState extends ConsumerState<AdvancedToolsPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: _probabilityOperation,
             decoration: InputDecoration(
               labelText: nextEraText(context, 'Operation', '运算'),
@@ -526,6 +532,7 @@ class _AdvancedToolsPageState extends ConsumerState<AdvancedToolsPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: _calendarOperation,
             decoration: InputDecoration(
               labelText: nextEraText(context, 'Operation', '运算'),

@@ -300,11 +300,11 @@ class CalculatorController extends Notifier<CalculatorState> {
   void syncSamplingRange(PlotViewport viewport, {bool force = false}) {
     if (!viewport.isValid) return;
     final current = state.sampleRange;
-    final shiftedX = (viewport.xMin - current.xMin).abs() >
-        current.xSpan * 0.02;
+    final shiftedX =
+        (viewport.xMin - current.xMin).abs() > current.xSpan * 0.02;
     final zoomedX = (viewport.xSpan / current.xSpan - 1).abs() > 0.02;
-    final shiftedY = (viewport.yMin - current.yMin).abs() >
-            current.ySpan * 0.02 ||
+    final shiftedY =
+        (viewport.yMin - current.yMin).abs() > current.ySpan * 0.02 ||
         (viewport.ySpan / current.ySpan - 1).abs() > 0.02;
     final needsBoth = _usesPlanarSampling(state.mode);
     if (!force && !shiftedX && !zoomedX && !(needsBoth && shiftedY)) return;
@@ -547,7 +547,8 @@ class CalculatorController extends Notifier<CalculatorState> {
 
       case 'parametric':
         final points = await AdaptiveCurveSampler.samplePath(
-          map: (List<double> ts) => _parametricPoints(backend, expression, secondary, ts),
+          map: (List<double> ts) =>
+              _parametricPoints(backend, expression, secondary, ts),
           parameterMin: state.parameterStart,
           parameterMax: state.parameterEnd,
           maximumSamples: budget * 2,
@@ -606,10 +607,7 @@ class CalculatorController extends Notifier<CalculatorState> {
 
       case 'direction':
       case 'vector':
-        final rows = (settings.meshDensity.divisions / 2).round().clamp(
-          12,
-          36,
-        );
+        final rows = (settings.meshDensity.divisions / 2).round().clamp(12, 36);
         final vectors = mode == 'direction'
             ? await backend.sampleDirectionField(
                 expression,
@@ -938,5 +936,6 @@ class _ModeSample {
   final List<PlotPoint> points;
   final List<ContourLevel> contours;
 
-  bool get isEmpty => !points.any((point) => point.isFinite) && contours.isEmpty;
+  bool get isEmpty =>
+      !points.any((point) => point.isFinite) && contours.isEmpty;
 }

@@ -41,9 +41,7 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        initialSettingsProvider.overrideWithValue(initialSettings),
-      ],
+      overrides: [initialSettingsProvider.overrideWithValue(initialSettings)],
       child: const SuperCalculatorApp(),
     ),
   );

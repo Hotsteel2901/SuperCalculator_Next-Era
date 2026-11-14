@@ -55,67 +55,62 @@ class FeaturePageFrame extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final subtitleText = subtitle;
+    final horizontal = MediaQuery.sizeOf(context).width < 600 ? 14.0 : 24.0;
     return CustomScrollView(
       slivers: <Widget>[
-        // A plain SliverAppBar with a FlexibleSpaceBar title is used instead of
-        // `SliverAppBar.large`: supplying a custom flexible space to the `.large`
-        // variant silently drops the collapsing title, which left pages with a
-        // subtitle (most of them) without a visible heading.
-        SliverAppBar(
-          pinned: true,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Icon(icon, color: scheme.primary),
-          ),
+        // `SliverAppBar.large` positions its own title for both the expanded and
+        // the collapsed state. Hand-rolling a `FlexibleSpaceBar` with a fixed
+        // `titlePadding.bottom` looked right while expanded, but once collapsed
+        // the title kept that bottom offset inside a 56dp toolbar and was drawn
+        // above the bar (under the status bar), overlapping the leading icon.
+        SliverAppBar.large(
+          title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
           actions: actions,
-          expandedHeight: subtitleText == null ? 132 : 172,
-          flexibleSpace: FlexibleSpaceBar(
-            expandedTitleScale: 1.5,
-            titlePadding: EdgeInsetsDirectional.only(
-              start: 60,
-              // The toolbar keeps 56dp of height; the subtitle needs its own row
-              // underneath the expanded title.
-              bottom: subtitleText == null ? 14 : 44,
-              end: 16,
-            ),
-            title: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            background: subtitleText == null
-                ? null
-                : Align(
-                    alignment: AlignmentDirectional.bottomStart,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                        start: 62,
-                        bottom: 20,
-                        end: 24,
-                      ),
-                      child: Text(
-                        subtitleText,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ),
-          ),
+          // The stock 152dp leaves a band of empty space above the heading on a
+          // phone; 140 keeps the M3 large-bar proportions without the gap.
+          expandedHeight: 140,
         ),
         SliverPadding(
           padding: EdgeInsets.fromLTRB(
-            MediaQuery.sizeOf(context).width < 600 ? 14 : 24,
-            4,
-            MediaQuery.sizeOf(context).width < 600 ? 14 : 24,
+            horizontal,
+            0,
+            horizontal,
             tokens.pagePadding + 24,
           ),
-          sliver: SliverToBoxAdapter(child: child),
+          sliver: SliverList(
+            delegate: SliverChildListDelegate(<Widget>[
+              if (subtitleText != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Icon(icon, size: 18, color: scheme.primary),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          subtitleText,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Icon(icon, size: 20, color: scheme.primary),
+                ),
+              child,
+            ]),
+          ),
         ),
       ],
     );
@@ -147,9 +142,8 @@ class FeatureCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title!,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: Theme.of(context).textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -210,16 +204,14 @@ class ResultCard extends StatelessWidget {
                   if (label != null)
                     Text(
                       label!,
-                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: foreground.withValues(alpha: 0.8),
-                      ),
+                      style: Theme.of(context).textTheme.labelMedium
+                          ?.copyWith(color: foreground.withValues(alpha: 0.8)),
                     ),
                   AnimatedNumberText(
                     value: error ?? value,
                     alignment: Alignment.centerLeft,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: foreground,
-                    ),
+                    style: Theme.of(context).textTheme.bodyLarge
+                        ?.copyWith(color: foreground),
                   ),
                 ],
               ),
@@ -522,7 +514,9 @@ String formatNumber(double value, {int? precision}) {
 
 String _trimZeros(String value) {
   if (!value.contains('.')) return value;
-  return value.replaceFirst(RegExp(r'0+$'), '').replaceFirst(RegExp(r'\.$'), '');
+  return value
+      .replaceFirst(RegExp(r'0+$'), '')
+      .replaceFirst(RegExp(r'\.$'), '');
 }
 
 /// Clamps [value] to a symmetric range used by plot accent heights.

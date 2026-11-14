@@ -1,4 +1,5 @@
-import 'package:cupertino_ui/cupertino_ui.dart' show GlobalCupertinoLocalizations;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show GlobalCupertinoLocalizations;
 import 'package:flutter/widgets.dart' show LocalizationsDelegate;
 import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalWidgetsLocalizations;

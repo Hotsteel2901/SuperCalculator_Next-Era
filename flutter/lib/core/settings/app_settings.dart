@@ -492,10 +492,7 @@ class AppSettings {
         fallback.curveThickness,
       ).clamp(1.0, 5.0).toDouble(),
       showGrid: _bool(source['showGrid'], fallback.showGrid),
-      showAxisLabels: _bool(
-        source['showAxisLabels'],
-        fallback.showAxisLabels,
-      ),
+      showAxisLabels: _bool(source['showAxisLabels'], fallback.showAxisLabels),
       animatePlotDraw: _bool(
         source['animatePlotDraw'],
         fallback.animatePlotDraw,
@@ -623,29 +620,23 @@ class AppSettingsController extends Notifier<AppSettings> {
     set(transform(state));
   }
 
-  void setThemeMode(AppThemeMode mode) => update(
-    (current) => current.copyWith(themeMode: mode),
-  );
+  void setThemeMode(AppThemeMode mode) =>
+      update((current) => current.copyWith(themeMode: mode));
 
-  void setMonetEnabled(bool enabled) => update(
-    (current) => current.copyWith(monetEnabled: enabled),
-  );
+  void setMonetEnabled(bool enabled) =>
+      update((current) => current.copyWith(monetEnabled: enabled));
 
-  void setIntensity(ExpressiveIntensity intensity) => update(
-    (current) => current.copyWith(intensity: intensity),
-  );
+  void setIntensity(ExpressiveIntensity intensity) =>
+      update((current) => current.copyWith(intensity: intensity));
 
-  void setSeedPalette(SeedPalette palette) => update(
-    (current) => current.copyWith(seedPalette: palette),
-  );
+  void setSeedPalette(SeedPalette palette) =>
+      update((current) => current.copyWith(seedPalette: palette));
 
-  void setMonetStyle(MonetStyle style) => update(
-    (current) => current.copyWith(monetStyle: style),
-  );
+  void setMonetStyle(MonetStyle style) =>
+      update((current) => current.copyWith(monetStyle: style));
 
-  void setMonetContrast(MonetContrast contrast) => update(
-    (current) => current.copyWith(monetContrast: contrast),
-  );
+  void setMonetContrast(MonetContrast contrast) =>
+      update((current) => current.copyWith(monetContrast: contrast));
 
   void resetToDefaults() => set(AppSettings.defaults);
 
