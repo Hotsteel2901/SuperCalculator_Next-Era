@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/calculus/calculus_page.dart';
@@ -17,8 +17,12 @@ import '../features/tools/advanced_tools_page.dart';
 import '../features/tools/tools_page.dart';
 import 'shell/app_shell.dart';
 
-final GoRouter appRouter = GoRouter(
-  initialLocation: '/home',
+/// Builds the router for a cold start at [initialLocation].
+///
+/// The start page comes from the persisted settings, so a user who prefers the
+/// plotting workbench lands there directly instead of seeing a redirect.
+GoRouter createAppRouter({String initialLocation = '/home'}) => GoRouter(
+  initialLocation: initialLocation,
   routes: <RouteBase>[
     ShellRoute(
       builder: (BuildContext context, GoRouterState state, Widget child) {
@@ -52,3 +56,6 @@ final GoRouter appRouter = GoRouter(
     ),
   ],
 );
+
+/// Default router used by tests and previews.
+final GoRouter appRouter = createAppRouter();

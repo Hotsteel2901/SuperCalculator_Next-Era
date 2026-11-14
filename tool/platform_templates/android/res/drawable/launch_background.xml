@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Legacy (pre-Android 12) launch screen.
+
+  A themed surface plus the shared brand mark; the animated version lives in
+  values-v31/sc_splash.xml and res/drawable/sc_splash_icon.xml.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/sc_splash_background" />
+    <item
+        android:drawable="@drawable/sc_splash_glyph"
+        android:gravity="center" />
+</layer-list>

@@ -1,0 +1,68 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/sc_splash_glyph">
+
+    <!--
+      Android 12+ splash animation (max 1000 ms per platform guidance; this one
+      finishes in 620 ms so the app is reachable immediately).
+
+      Sequence: the mark settles from 0.86 scale, then the plotted curve is
+      drawn left to right while the axes fade in behind it. Nothing loops, so a
+      cold start never shows a stalled frame.
+    -->
+
+    <target android:name="mark">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="420"
+                    android:interpolator="@android:interpolator/decelerate_cubic"
+                    android:propertyName="scaleX"
+                    android:valueFrom="0.86"
+                    android:valueTo="1" />
+                <objectAnimator
+                    android:duration="420"
+                    android:interpolator="@android:interpolator/decelerate_cubic"
+                    android:propertyName="scaleY"
+                    android:valueFrom="0.86"
+                    android:valueTo="1" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <target android:name="curve">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="520"
+                android:interpolator="@android:interpolator/fast_out_slow_in"
+                android:propertyName="trimPathEnd"
+                android:startOffset="100"
+                android:valueFrom="0"
+                android:valueTo="1" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="axisX">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="260"
+                android:interpolator="@android:interpolator/linear_out_slow_in"
+                android:propertyName="trimPathEnd"
+                android:startOffset="320"
+                android:valueFrom="0"
+                android:valueTo="1" />
+        </aapt:attr>
+    </target>
+
+    <target android:name="axisY">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="260"
+                android:interpolator="@android:interpolator/linear_out_slow_in"
+                android:propertyName="trimPathEnd"
+                android:startOffset="360"
+                android:valueFrom="0"
+                android:valueTo="1" />
+        </aapt:attr>
+    </target>
+</animated-vector>

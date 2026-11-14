@@ -1,0 +1,61 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="140dp"
+    android:height="140dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!--
+      Brand mark used by the Android launch screen and by the legacy
+      (pre-Android 12) launch background.
+
+      The geometry is authored once here; the animated variant reuses it and
+      only animates trim/scale so the two launch paths cannot drift apart.
+    -->
+
+    <group
+        android:name="mark"
+        android:pivotX="24"
+        android:pivotY="24"
+        android:scaleX="1"
+        android:scaleY="1">
+
+        <!-- Rounded square frame (squircle-like, matching the in-app shape). -->
+        <path
+            android:name="frame"
+            android:fillColor="#00000000"
+            android:strokeColor="#7FA8D8F6"
+            android:strokeWidth="2.6"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M13,4.5 L35,4.5 A8.5,8.5 0 0 1 43.5,13 L43.5,35 A8.5,8.5 0 0 1 35,43.5 L13,43.5 A8.5,8.5 0 0 1 4.5,35 L4.5,13 A8.5,8.5 0 0 1 13,4.5 Z" />
+
+        <!-- Coordinate axes. -->
+        <path
+            android:name="axisX"
+            android:fillColor="#00000000"
+            android:strokeColor="#F2B8C6"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:trimPathEnd="1"
+            android:pathData="M8,37 L40,37" />
+        <path
+            android:name="axisY"
+            android:fillColor="#00000000"
+            android:strokeColor="#F2B8C6"
+            android:strokeWidth="2.4"
+            android:strokeLineCap="round"
+            android:trimPathEnd="1"
+            android:pathData="M11,40 L11,9" />
+
+        <!-- Plotted curve; the animated variant draws it with trimPathEnd. -->
+        <path
+            android:name="curve"
+            android:fillColor="#00000000"
+            android:strokeColor="#A8C7FA"
+            android:strokeWidth="3.4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:trimPathEnd="1"
+            android:pathData="M8,31 C 15,31 17,13 24,13 C 31,13 33,26 40,16" />
+    </group>
+</vector>

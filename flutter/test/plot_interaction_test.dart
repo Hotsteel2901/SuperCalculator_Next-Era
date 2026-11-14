@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -116,6 +116,40 @@ void main() {
     expect(marked.single.x, closeTo(0, 1e-6));
     expect(marked.single.y, closeTo(0, 1e-6));
     expect(key.currentState!.viewport, PlotViewport.initial);
+  });
+
+  testWidgets('aspect lock keeps circles round on a wide canvas', (
+    tester,
+  ) async {
+    final key = GlobalKey<InteractivePlotViewState>();
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            height: 200,
+            width: 500,
+            child: InteractivePlotView(
+              key: key,
+              points: const <PlotPoint>[
+                PlotPoint(1, 0),
+                PlotPoint(0, 1),
+                PlotPoint(-1, 0),
+                PlotPoint(0, -1),
+              ],
+              mode: 'parametric',
+              scheme: ThemeData().colorScheme,
+              lockAspect: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final viewport = key.currentState!.viewport;
+    final plotRect = PlotLayout.plotRectFor(const Size(500, 200));
+    final expected = viewport.xSpan * plotRect.height / plotRect.width;
+    expect(viewport.ySpan, closeTo(expected, expected * 0.02));
   });
 
   testWidgets('expandable chart opens a full-screen secondary page', (

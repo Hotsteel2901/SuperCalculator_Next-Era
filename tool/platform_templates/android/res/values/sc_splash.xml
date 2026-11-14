@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Launch theme for the Android host.
+
+      It inherits the generated NormalTheme so the activity itself keeps the
+      Flutter template's window flags; only the launch-screen artwork and (on
+      API 31+) the animated splash icon differ. The bootstrap patch points the
+      main activity at this theme.
+    -->
+    <style name="Theme.SuperCalc.Splash" parent="@style/NormalTheme">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+</resources>

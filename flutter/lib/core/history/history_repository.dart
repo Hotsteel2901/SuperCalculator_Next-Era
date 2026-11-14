@@ -5,6 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../settings/app_settings.dart';
+
 const _historyStorageKey = 'supercalculator.next_era.history.v1';
 
 final calculationHistoryProvider =
@@ -117,11 +119,19 @@ class CalculationHistoryController extends Notifier<List<HistoryEntry>> {
     return const <HistoryEntry>[];
   }
 
+  /// Number of entries retained, taken from the settings so the history page
+  /// and the recorder agree on the same bound.
+  int get limit => ref.read(appSettingsProvider).historyLimit;
+
+  /// Whether new calculations should be recorded at all.
+  bool get recording => ref.read(appSettingsProvider).autoSaveHistory;
+
   void add({
     required String expression,
     required String result,
     required String backend,
   }) {
+    if (!recording) return;
     final entry = HistoryEntry(
       expression: expression,
       result: result,
@@ -129,7 +139,24 @@ class CalculationHistoryController extends Notifier<List<HistoryEntry>> {
       createdAt: DateTime.now(),
     );
     _hasLocalChanges = true;
-    state = <HistoryEntry>[entry, ...state].take(10).toList(growable: false);
+    state = <HistoryEntry>[entry, ...state].take(limit).toList(growable: false);
+    unawaited(_persist());
+  }
+
+  /// Removes a single entry, used by the per-row action on the history page.
+  void removeAt(int index) {
+    if (index < 0 || index >= state.length) return;
+    _hasLocalChanges = true;
+    state = <HistoryEntry>[...state]..removeAt(index);
+    unawaited(_persist());
+  }
+
+  /// Drops entries beyond the configured limit (after lowering it).
+  void trimToLimit() {
+    final maximum = limit;
+    if (state.length <= maximum) return;
+    _hasLocalChanges = true;
+    state = state.take(maximum).toList(growable: false);
     unawaited(_persist());
   }
 
@@ -148,7 +175,7 @@ class CalculationHistoryController extends Notifier<List<HistoryEntry>> {
       final preferences = await SharedPreferences.getInstance();
       final encoded = preferences.getString(_historyStorageKey);
       if (encoded == null || _hasLocalChanges) return;
-      final entries = HistoryCodec.fromJson(encoded);
+      final entries = HistoryCodec.fromJson(encoded, limit: limit);
       if (!_hasLocalChanges) state = entries;
     } catch (_) {
       // Corrupt or unavailable storage must never prevent the calculator from

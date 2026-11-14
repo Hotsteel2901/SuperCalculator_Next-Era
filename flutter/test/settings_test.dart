@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -84,6 +84,9 @@ void main() {
     container
         .read(appSettingsProvider.notifier)
         .setThemeMode(AppThemeMode.light);
+    // Persistence is debounced so dragging a slider does not hit the platform
+    // channel on every frame; wait for the debounce window to elapse.
+    await Future<void>.delayed(const Duration(milliseconds: 320));
     await pumpEventQueue();
 
     final preferences = await SharedPreferences.getInstance();
@@ -113,7 +116,7 @@ void main() {
     expect(find.text('Appearance'), findsOneWidget);
     expect(find.text('Expressive intensity'), findsOneWidget);
 
-    await tester.tap(find.text('Dark'));
+    await tester.tap(find.byIcon(Icons.dark_mode_rounded));
     await tester.pumpAndSettle();
 
     final container = ProviderScope.containerOf(

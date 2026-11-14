@@ -6,6 +6,33 @@ This increment keeps the migration additive and rollback-safe while making the F
 workbench the only new UI. The feature manifest and golden vectors are the release
 source of truth.
 
+### Expressive redesign increment
+
+- Migrated the whole Flutter app to `package:material_ui` and the Material 3
+  Expressive component variants (expressive buttons, shape morphing, fade-forwards
+  transitions, real spring animation) instead of plain Material 3.
+- Rebuilt the quick input panel as a symbol editor: 70+ searchable symbols in 10
+  groups, favourites/recents/usage persistence, selection-aware insertion, undo/redo,
+  repeat backspace, keyboard grid navigation and sheet/side-panel/dialog layouts.
+- Rewrote the plot pipeline so every mode draws the complete curve: adaptive sampling
+  for `y=f(x)` and multi-curve plots, Liang–Barsky asymptote clipping, marching-squares
+  iso-lines for implicit and contour plots, adaptive parametric/polar paths with
+  aspect-locked fitting, and depth-sorted shaded 3D surfaces over a base grid.
+- Added a 35-field persisted settings surface (appearance, motion, plotting, input,
+  data, language) and wired every field to a concrete consumer, including the history
+  limit, auto-record switch, number precision and start page.
+- Optimised performance: debounced settings and history writes, cached plot paths,
+  memoised themes, LRU colour-scheme cache, `RepaintBoundary`-scoped surfaces and
+  `ValueListenableBuilder`-scoped rebuilds.
+- Improved Monet: the wallpaper core palette is read directly and regenerated locally
+  with selectable scheme variant and contrast level, with a readable plot palette.
+- Added a three-layer launch animation: Android 12+ `AnimatedVectorDrawable` splash,
+  a web boot surface that fades on the first frame, and an in-app squircle morph that
+  hands over in about one second and collapses to a fade for reduced motion.
+- Rebuilt the shell around responsive navigation (floating bar with a grouped "more"
+  sheet on phones, collapsible sidebar with grouped destinations on desktop), a
+  searchable settings page with a live component preview, and refreshed workbench pages.
+
 ### Delivered in this increment
 
 - Added a multi-curve overlay mode using semicolon/newline-separated expressions.

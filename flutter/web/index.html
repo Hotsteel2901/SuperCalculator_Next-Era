@@ -1,18 +1,207 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="SuperCalculator - Next Era">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#FF2E63">
+  <meta name="theme-color" content="#0F1116">
+  <meta name="color-scheme" content="dark light">
   <title>SuperCalculator - Next Era</title>
   <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
   <link rel="apple-touch-icon" sizes="192x192" href="icons/Icon-192.png">
   <link rel="manifest" href="manifest.json">
+  <style>
+    /*
+      Boot surface shown until Flutter reports its first frame.
+
+      It mirrors the in-app launch animation (a squircle brand mark drawing one
+      curve) so the hand-off between the HTML shell and the Dart launch gate is
+      seamless on the web, where there is no platform splash screen.
+    */
+    :root {
+      --sc-bg: #0f1116;
+      --sc-surface: #171a21;
+      --sc-primary: #a8c7fa;
+      --sc-tertiary: #f2b8c6;
+      --sc-on-surface: #e6e9f0;
+      --sc-outline: rgba(230, 233, 240, 0.14);
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --sc-bg: #f7f8fc;
+        --sc-surface: #ffffff;
+        --sc-primary: #2c5c9e;
+        --sc-tertiary: #9c4560;
+        --sc-on-surface: #1b1e24;
+        --sc-outline: rgba(27, 30, 36, 0.12);
+      }
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--sc-bg);
+      color: var(--sc-on-surface);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+    }
+
+    #sc-boot {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(60% 55% at 50% 42%, rgba(168, 199, 250, 0.16), transparent 70%),
+        var(--sc-bg);
+      transition: opacity 340ms cubic-bezier(0.2, 0, 0, 1);
+      z-index: 2147483647;
+    }
+
+    #sc-boot[data-leaving='true'] {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .sc-mark {
+      width: 108px;
+      height: 108px;
+      display: grid;
+      place-items: center;
+      border-radius: 34px;
+      background: linear-gradient(145deg, var(--sc-surface), var(--sc-bg));
+      border: 1px solid var(--sc-outline);
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+      animation: sc-mark-in 620ms cubic-bezier(0.2, 1.2, 0.3, 1) both;
+    }
+
+    .sc-mark svg {
+      width: 64px;
+      height: 64px;
+      overflow: visible;
+    }
+
+    .sc-curve {
+      stroke: var(--sc-primary);
+      stroke-width: 4.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke-dasharray: 150;
+      stroke-dashoffset: 150;
+      animation: sc-draw 780ms cubic-bezier(0.35, 0.9, 0.2, 1) 120ms forwards;
+    }
+
+    .sc-axis {
+      stroke: var(--sc-tertiary);
+      stroke-width: 3.4;
+      stroke-linecap: round;
+      opacity: 0;
+      animation: sc-fade-in 300ms ease-out 520ms forwards;
+    }
+
+    .sc-label {
+      margin-top: 18px;
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: sc-fade-in 420ms ease-out 480ms forwards;
+      color: var(--sc-on-surface);
+    }
+
+    .sc-stack {
+      display: grid;
+      justify-items: center;
+    }
+
+    @keyframes sc-mark-in {
+      0% {
+        transform: scale(0.82) rotate(-4deg);
+        opacity: 0;
+      }
+      60% {
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    @keyframes sc-draw {
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    @keyframes sc-fade-in {
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Reduced motion: show the finished mark without any travel. */
+    @media (prefers-reduced-motion: reduce) {
+      .sc-mark,
+      .sc-curve,
+      .sc-axis,
+      .sc-label {
+        animation: none !important;
+      }
+      .sc-curve {
+        stroke-dashoffset: 0;
+      }
+      .sc-axis,
+      .sc-label {
+        opacity: 1;
+      }
+      #sc-boot {
+        transition-duration: 120ms;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div id="sc-boot" role="status" aria-live="polite" aria-label="Loading SuperCalculator">
+    <div class="sc-stack">
+      <div class="sc-mark">
+        <svg viewBox="0 0 48 48" aria-hidden="true">
+          <path class="sc-axis" d="M6 36 L42 36" />
+          <path class="sc-axis" d="M10 42 L10 8" />
+          <path class="sc-curve" d="M6 30 C 14 30, 16 12, 24 12 S 34 26, 42 14" />
+        </svg>
+      </div>
+      <div class="sc-label">SuperCalculator</div>
+    </div>
+  </div>
+
   <script src="flutter_bootstrap.js" async></script>
+  <script>
+    (function () {
+      var boot = document.getElementById('sc-boot');
+      if (!boot) return;
+      var removed = false;
+
+      function dismiss() {
+        if (removed) return;
+        removed = true;
+        boot.setAttribute('data-leaving', 'true');
+        window.setTimeout(function () {
+          if (boot && boot.parentNode) boot.parentNode.removeChild(boot);
+        }, 380);
+      }
+
+      // Flutter fires this once the first frame is on screen; the timeout is a
+      // safety net for very slow first loads or a failed bootstrap.
+      window.addEventListener('flutter-first-frame', dismiss);
+      window.setTimeout(dismiss, 6000);
+    })();
+  </script>
 </body>
 </html>

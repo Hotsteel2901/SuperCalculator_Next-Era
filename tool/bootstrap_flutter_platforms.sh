@@ -18,4 +18,9 @@ flutter create \
   --platforms=android,ios,windows,linux,macos,web \
   "${FLUTTER_DIR}"
 
+# `flutter create` owns the runners, so the custom Android launch artwork (the
+# Android 12+ animated splash and the legacy launch background) is re-applied
+# afterwards instead of being committed inside the generated folder.
+python3 "${ROOT_DIR}/tool/apply_launch_art.py"
+
 printf '\nPlatform folders generated. Review the diff before committing.\n'

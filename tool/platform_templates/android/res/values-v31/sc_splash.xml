@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Android 12+ splash screen: the platform draws the animated brand mark and
+      then hands the window straight to Flutter, where the in-app launch gate
+      continues the same motion.
+    -->
+    <style name="Theme.SuperCalc.Splash" parent="@style/NormalTheme">
+        <item name="android:windowSplashScreenBackground">@color/sc_splash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/sc_splash_icon</item>
+        <item name="android:windowSplashScreenAnimationDuration">620</item>
+    </style>
+</resources>

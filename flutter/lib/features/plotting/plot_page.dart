@@ -1,16 +1,20 @@
+import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../app/theme/design_tokens.dart';
 import '../../core/plot/interactive_plot_view.dart';
 import '../../core/presets/preset_catalog.dart';
+import '../../core/settings/app_settings.dart';
+import '../../core/ui/expressive/expressive_widgets.dart';
 import '../../core/ui/feature_widgets.dart';
 import '../../l10n/generated/app_localizations.dart';
 import 'calculator_controller.dart';
 import 'plot_fullscreen_page.dart';
+import 'plot_surface.dart';
 import 'quick_input_panel.dart';
 
 class _PlotPreset {
@@ -134,6 +138,31 @@ const _plotPresets = <String, List<_PlotPreset>>{
   ],
 };
 
+/// Plot modes, in the order they are offered in the mode strip.
+const _plotModes = <String>[
+  'function',
+  'multi',
+  'parametric',
+  'polar',
+  'implicit',
+  'surface',
+  'contour',
+  'direction',
+  'vector',
+];
+
+IconData _modeIcon(String mode) => switch (mode) {
+  'function' => Icons.timeline_rounded,
+  'multi' => Icons.multiline_chart_rounded,
+  'parametric' => Icons.animation_rounded,
+  'polar' => Icons.radar_rounded,
+  'implicit' => Icons.gesture_rounded,
+  'surface' => Icons.terrain_rounded,
+  'contour' => Icons.layers_rounded,
+  'direction' => Icons.linear_scale_rounded,
+  _ => Icons.explore_rounded,
+};
+
 class PlotPage extends ConsumerStatefulWidget {
   const PlotPage({super.key});
 
@@ -149,19 +178,18 @@ class _PlotPageState extends ConsumerState<PlotPage> {
   late final TextEditingController _parameterEndController;
   final Map<String, TextEditingController> _parameterControllers =
       <String, TextEditingController>{};
+  final GlobalKey<InteractivePlotViewState> _plotViewKey =
+      GlobalKey<InteractivePlotViewState>();
   List<String> _curveExpressions = <String>[];
   String? _selectedPreset;
   Map<String, List<_PlotPreset>> _availablePresets = _plotPresets;
-  final GlobalKey<InteractivePlotViewState> _plotViewKey =
-      GlobalKey<InteractivePlotViewState>();
+  Timer? _autoEvaluateTimer;
 
-  List<String> _splitCurves(String expression) {
-    return expression
-        .split(RegExp(r'[;\n]+'))
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList(growable: false);
-  }
+  List<String> _splitCurves(String expression) => expression
+      .split(RegExp(r'[;\n]+'))
+      .map((value) => value.trim())
+      .where((value) => value.isNotEmpty)
+      .toList(growable: false);
 
   void _syncParameterControllers(CalculatorState state, List<String> names) {
     final retained = names.toSet();
@@ -181,6 +209,18 @@ class _PlotPageState extends ConsumerState<PlotPage> {
     }
   }
 
+  /// Re-evaluates shortly after typing stops, when the user enabled
+  /// auto-evaluation. Keeping it debounced avoids evaluating every keystroke on
+  /// slower native backends.
+  void _scheduleAutoEvaluate(CalculatorController controller) {
+    if (!ref.read(appSettingsProvider).autoEvaluate) return;
+    _autoEvaluateTimer?.cancel();
+    _autoEvaluateTimer = Timer(const Duration(milliseconds: 520), () {
+      if (!mounted) return;
+      unawaited(controller.evaluate());
+    });
+  }
+
   void _addCurve(CalculatorController controller) {
     final expression = _expressionController.text.trim();
     if (expression.isEmpty) return;
@@ -191,20 +231,21 @@ class _PlotPageState extends ConsumerState<PlotPage> {
       _expressionController.clear();
     });
     controller.setExpression(curves.join(';'));
-    controller.evaluate();
+    unawaited(controller.evaluate());
   }
 
-  Future<void> _openQuickInput(
-    CalculatorController controller, {
+  Future<void> _openQuickInput({
     required TextEditingController target,
     required ValueChanged<String> onChanged,
     required VoidCallback onSubmit,
-  }) {
-    return QuickInputPanel.show(
+  }) async {
+    final layout = ref.read(appSettingsProvider).quickPanelLayout;
+    await QuickInputPanel.show(
       context: context,
       target: target,
       onChanged: onChanged,
       onSubmit: onSubmit,
+      layout: layout,
     );
   }
 
@@ -212,7 +253,7 @@ class _PlotPageState extends ConsumerState<PlotPage> {
     final curves = <String>[..._curveExpressions]..remove(expression);
     setState(() => _curveExpressions = curves);
     controller.setExpression(curves.join(';'));
-    controller.evaluate();
+    unawaited(controller.evaluate());
   }
 
   void _updateParameterRange(CalculatorController controller) {
@@ -223,13 +264,44 @@ class _PlotPageState extends ConsumerState<PlotPage> {
     }
   }
 
-  void _clearForm(CalculatorController controller) {
+  Future<void> _clearForm(CalculatorController controller) async {
+    final settings = ref.read(appSettingsProvider);
+    final current = ref.read(calculatorControllerProvider);
+    if (settings.confirmReset && current.hasCurve) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext dialogContext) => AlertDialog(
+          icon: const Icon(Icons.restart_alt_rounded),
+          title: Text(nextEraText(dialogContext, 'Clear the plot?', '清空绘图？')),
+          content: Text(
+            nextEraText(
+              dialogContext,
+              'The current expression, curves and markers will be reset.',
+              '当前的表达式、曲线与标记都会被重置。',
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(nextEraText(dialogContext, 'Keep', '保留')),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(nextEraText(dialogContext, 'Reset', '重置')),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
     controller.clear();
     for (final parameterController in _parameterControllers.values) {
       parameterController.dispose();
     }
+    if (!mounted) return;
     setState(() {
       _curveExpressions = <String>[];
+      _selectedPreset = null;
       _expressionController.text = 'sin(x)';
       _secondaryController.text = 'cos(x)';
       _xController.text = '0';
@@ -237,6 +309,7 @@ class _PlotPageState extends ConsumerState<PlotPage> {
       _parameterEndController.text = (2 * math.pi).toString();
       _parameterControllers.clear();
     });
+    _plotViewKey.currentState?.resetView();
   }
 
   void _resetPlotView() {
@@ -259,6 +332,20 @@ class _PlotPageState extends ConsumerState<PlotPage> {
     );
   }
 
+  void _applyPreset(_PlotPreset preset, CalculatorController controller) {
+    _expressionController.text = preset.expression;
+    controller.setExpression(preset.expression);
+    if (preset.secondary != null) {
+      _secondaryController.text = preset.secondary!;
+      controller.setSecondaryExpression(preset.secondary!);
+    }
+    _parameterStartController.text = preset.start.toString();
+    _parameterEndController.text = preset.end.toString();
+    controller.setParameterRange(preset.start, preset.end);
+    setState(() => _selectedPreset = preset.label);
+    unawaited(controller.evaluate());
+  }
+
   @override
   void initState() {
     super.initState();
@@ -275,6 +362,14 @@ class _PlotPageState extends ConsumerState<PlotPage> {
       text: initial.parameterEnd.toString(),
     );
     _loadPresetCatalog();
+    // The page opens with a usable default expression; sampling it immediately
+    // avoids an empty canvas on the first visit.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final current = ref.read(calculatorControllerProvider);
+      if (current.hasCurve || current.isCalculating) return;
+      unawaited(ref.read(calculatorControllerProvider.notifier).evaluate());
+    });
   }
 
   Future<void> _loadPresetCatalog() async {
@@ -307,6 +402,7 @@ class _PlotPageState extends ConsumerState<PlotPage> {
 
   @override
   void dispose() {
+    _autoEvaluateTimer?.cancel();
     _expressionController.dispose();
     _secondaryController.dispose();
     _xController.dispose();
@@ -318,20 +414,38 @@ class _PlotPageState extends ConsumerState<PlotPage> {
     super.dispose();
   }
 
+  String _expressionLabel(BuildContext context, String mode) {
+    return switch (mode) {
+      'parametric' => nextEraText(context, 'x(t)', 'x(t)'),
+      'polar' => nextEraText(context, 'r(t)', 'r(t)'),
+      'implicit' || 'surface' || 'contour' || 'direction' => nextEraText(
+        context,
+        'f(x, y)',
+        'f(x, y)',
+      ),
+      'vector' => nextEraText(context, 'P(x, y)', 'P(x, y)'),
+      _ => AppLocalizations.of(context).expression,
+    };
+  }
+
+  String? _hintForMode(String mode) => switch (mode) {
+    'parametric' => 'cos(x)',
+    'polar' => '1 + cos(x)',
+    'implicit' => 'x^2 + y^2 - 4',
+    'surface' || 'contour' => 'x^2 + y^2',
+    'direction' => 'y * (1 - y)',
+    'vector' => '-y',
+    _ => 'sin(x)',
+  };
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tokens = SuperCalcDesignTokens.of(context);
+    final settings = ref.watch(appSettingsProvider);
     final state = ref.watch(calculatorControllerProvider);
     final controller = ref.read(calculatorControllerProvider.notifier);
     final scheme = Theme.of(context).colorScheme;
-    final curvePalette = <Color>[
-      scheme.primary,
-      scheme.tertiary,
-      scheme.secondary,
-      scheme.error,
-      scheme.inversePrimary,
-    ];
     final presets = _availablePresets[state.mode] ?? const <_PlotPreset>[];
     final parameterNames = controller.parameterNames(
       expression: state.expression,
@@ -340,654 +454,582 @@ class _PlotPageState extends ConsumerState<PlotPage> {
           : '',
     );
     _syncParameterControllers(state, parameterNames);
-    final modes = <String, String>{
-      'function': nextEraText(context, 'Function y=f(x)', '函数 y=f(x)'),
-      'multi': nextEraText(context, 'Multi-curve overlay', '多曲线叠加'),
-      'parametric': nextEraText(
-        context,
-        'Parametric x(t), y(t)',
-        '参数曲线 x(t), y(t)',
-      ),
-      'polar': nextEraText(context, 'Polar r(t)', '极坐标 r(t)'),
-      'implicit': nextEraText(context, 'Implicit f(x,y)=0', '隐式曲线 f(x,y)=0'),
-      'surface': nextEraText(context, '3D surface z=f(x,y)', '三维曲面 z=f(x,y)'),
-      'contour': nextEraText(context, 'Contour level set', '等高线'),
-      'direction': nextEraText(context, 'Direction field', '方向场'),
-      'vector': nextEraText(context, 'Vector field P,Q', '向量场 P,Q'),
-    };
+    final screen = MediaQuery.sizeOf(context);
+    final plotHeight = (screen.height * .44).clamp(240.0, 560.0).toDouble();
+    final totalCount = state.points.length;
 
-    return CallbackShortcuts(
-      bindings: <ShortcutActivator, VoidCallback>{
-        const SingleActivator(LogicalKeyboardKey.keyI, control: true): () =>
-            _openQuickInput(
-              controller,
-              target: _expressionController,
-              onChanged: (value) {
-                if (state.mode != 'multi') controller.setExpression(value);
-              },
-              onSubmit: state.mode == 'multi'
-                  ? () => _addCurve(controller)
-                  : controller.evaluate,
-            ),
-        const SingleActivator(LogicalKeyboardKey.keyI, meta: true): () =>
-            _openQuickInput(
-              controller,
-              target: _expressionController,
-              onChanged: (value) {
-                if (state.mode != 'multi') controller.setExpression(value);
-              },
-              onSubmit: state.mode == 'multi'
-                  ? () => _addCurve(controller)
-                  : controller.evaluate,
-            ),
-      },
-      child: CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar.large(title: Text(l10n.plotting)),
-          SliverPadding(
-            padding: EdgeInsets.all(tokens.pagePadding),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate(<Widget>[
-                Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(tokens.pagePadding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        DropdownButtonFormField<String>(
-                          initialValue: state.mode,
-                          decoration: InputDecoration(
-                            labelText: nextEraText(
-                              context,
-                              'Plot mode',
-                              '绘图模式',
-                            ),
-                          ),
-                          items: modes.entries
-                              .map(
-                                (entry) => DropdownMenuItem<String>(
-                                  value: entry.key,
-                                  child: Text(entry.value),
-                                ),
-                              )
-                              .toList(growable: false),
-                          onChanged: (value) {
-                            if (value == null) return;
-                            final curves = value == 'multi'
-                                ? (_splitCurves(state.expression).isEmpty
-                                      ? <String>[state.expression.trim()]
-                                      : _splitCurves(state.expression))
-                                : _curveExpressions;
-                            final expressionForMode = value == 'multi'
-                                ? curves.join(';')
-                                : state.mode == 'multi' && curves.isNotEmpty
-                                ? curves.first
-                                : state.expression;
-                            setState(() {
-                              _selectedPreset = null;
-                              if (value == 'multi') {
-                                _curveExpressions = curves;
-                                _expressionController.clear();
-                              } else {
-                                _curveExpressions = <String>[];
-                                _expressionController.text = expressionForMode;
-                              }
-                            });
-                            controller.setMode(value);
-                            controller.setExpression(expressionForMode);
-                          },
-                        ),
-                        if (presets.isNotEmpty) ...<Widget>[
-                          SizedBox(height: tokens.controlGap),
-                          DropdownButtonFormField<String>(
-                            initialValue:
-                                presets.any(
-                                  (preset) => preset.label == _selectedPreset,
-                                )
-                                ? _selectedPreset
-                                : null,
-                            decoration: InputDecoration(
-                              labelText: nextEraText(context, 'Preset', '预设'),
-                            ),
-                            items: presets
-                                .map(
-                                  (preset) => DropdownMenuItem<String>(
-                                    value: preset.label,
-                                    child: Text(preset.label),
-                                  ),
-                                )
-                                .toList(growable: false),
-                            onChanged: (label) {
-                              if (label == null) return;
-                              final preset = presets.firstWhere(
-                                (item) => item.label == label,
-                              );
-                              _expressionController.text = preset.expression;
-                              controller.setExpression(preset.expression);
-                              if (preset.secondary != null) {
-                                _secondaryController.text = preset.secondary!;
-                                controller.setSecondaryExpression(
-                                  preset.secondary!,
-                                );
-                              }
-                              _parameterStartController.text = preset.start
-                                  .toString();
-                              _parameterEndController.text = preset.end
-                                  .toString();
-                              controller.setParameterRange(
-                                preset.start,
-                                preset.end,
-                              );
-                              setState(() => _selectedPreset = label);
-                            },
-                          ),
-                        ],
-                        SizedBox(height: tokens.controlGap),
-                        Text(
-                          state.mode == 'parametric'
-                              ? nextEraText(context, 'x(t)', 'x(t)')
-                              : state.mode == 'polar'
-                              ? nextEraText(context, 'r(t)', 'r(t)')
-                              : state.mode == 'implicit' ||
-                                    state.mode == 'surface' ||
-                                    state.mode == 'contour' ||
-                                    state.mode == 'direction'
-                              ? nextEraText(context, 'f(x,y)', 'f(x,y)')
-                              : state.mode == 'vector'
-                              ? nextEraText(context, 'P(x,y)', 'P(x,y)')
-                              : l10n.expression,
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                        SizedBox(height: tokens.controlGap),
-                        if (state.mode == 'multi') ...<Widget>[
-                          Wrap(
-                            spacing: tokens.controlGap / 2,
-                            runSpacing: tokens.controlGap / 2,
-                            children: _curveExpressions
-                                .asMap()
-                                .entries
-                                .map(
-                                  (entry) => InputChip(
-                                    avatar: CircleAvatar(
-                                      radius: 7,
-                                      backgroundColor:
-                                          curvePalette[entry.key %
-                                              curvePalette.length],
-                                    ),
-                                    label: Text(entry.value),
-                                    onDeleted: () =>
-                                        _removeCurve(entry.value, controller),
-                                  ),
-                                )
-                                .toList(growable: false),
-                          ),
-                          SizedBox(height: tokens.controlGap),
-                          TextField(
-                            controller: _expressionController,
-                            keyboardType: TextInputType.text,
-                            textInputAction: TextInputAction.done,
-                            onSubmitted: (_) => _addCurve(controller),
-                            decoration: InputDecoration(
-                              labelText: nextEraText(
-                                context,
-                                'Add curve expression',
-                                '添加曲线表达式',
-                              ),
-                              hintText: 'cos(x)',
-                              suffixIcon: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                  IconButton(
-                                    tooltip: nextEraText(
-                                      context,
-                                      'Quick input (Ctrl+I)',
-                                      '快捷输入（Ctrl+I）',
-                                    ),
-                                    onPressed: () => _openQuickInput(
-                                      controller,
-                                      target: _expressionController,
-                                      onChanged: (_) {},
-                                      onSubmit: () => _addCurve(controller),
-                                    ),
-                                    icon: const Icon(
-                                      Icons.keyboard_alt_outlined,
-                                    ),
-                                  ),
-                                  IconButton(
-                                    tooltip: nextEraText(
-                                      context,
-                                      'Add curve',
-                                      '添加曲线',
-                                    ),
-                                    onPressed: () => _addCurve(controller),
-                                    icon: const Icon(Icons.add),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            style: const TextStyle(fontFamily: 'monospace'),
-                          ),
-                        ] else
-                          TextField(
-                            controller: _expressionController,
-                            onChanged: controller.setExpression,
-                            onSubmitted: (_) => controller.evaluate(),
-                            keyboardType: TextInputType.text,
-                            textInputAction: TextInputAction.go,
-                            decoration: InputDecoration(
-                              hintText: state.mode == 'parametric'
-                                  ? 'cos(x)'
-                                  : state.mode == 'polar'
-                                  ? '1 + cos(x)'
-                                  : 'sin(x)',
-                              suffixIcon: IconButton(
-                                tooltip: nextEraText(
-                                  context,
-                                  'Quick input (Ctrl+I)',
-                                  '快捷输入（Ctrl+I）',
-                                ),
-                                onPressed: () => _openQuickInput(
-                                  controller,
-                                  target: _expressionController,
-                                  onChanged: controller.setExpression,
-                                  onSubmit: controller.evaluate,
-                                ),
-                                icon: const Icon(Icons.keyboard_alt_outlined),
-                              ),
-                            ),
-                            style: const TextStyle(fontFamily: 'monospace'),
-                          ),
-                        if (state.mode == 'parametric' ||
-                            state.mode == 'vector') ...<Widget>[
-                          SizedBox(height: tokens.controlGap),
-                          TextField(
-                            controller: _secondaryController,
-                            onChanged: controller.setSecondaryExpression,
-                            decoration: InputDecoration(
-                              labelText: nextEraText(context, 'y(t)', 'y(t)'),
-                              hintText: 'sin(x)',
-                              suffixIcon: IconButton(
-                                tooltip: nextEraText(
-                                  context,
-                                  'Quick input',
-                                  '快捷输入',
-                                ),
-                                onPressed: () => _openQuickInput(
-                                  controller,
-                                  target: _secondaryController,
-                                  onChanged: controller.setSecondaryExpression,
-                                  onSubmit: controller.evaluate,
-                                ),
-                                icon: const Icon(Icons.keyboard_alt_outlined),
-                              ),
-                            ),
-                            style: const TextStyle(fontFamily: 'monospace'),
-                          ),
-                        ],
-                        if (parameterNames.isNotEmpty) ...<Widget>[
-                          SizedBox(height: tokens.controlGap),
-                          Text(
-                            nextEraText(context, 'Free parameters', '自由参数'),
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          SizedBox(height: tokens.controlGap / 2),
-                          Wrap(
-                            spacing: tokens.controlGap,
-                            runSpacing: tokens.controlGap,
-                            children: parameterNames
-                                .map(
-                                  (name) => SizedBox(
-                                    width: 150,
-                                    child: TextField(
-                                      controller: _parameterControllers[name],
-                                      onChanged: (value) {
-                                        final parsed = double.tryParse(value);
-                                        if (parsed != null && parsed.isFinite) {
-                                          controller.setParameter(name, parsed);
-                                        }
-                                      },
-                                      keyboardType:
-                                          const TextInputType.numberWithOptions(
-                                            decimal: true,
-                                            signed: true,
-                                          ),
-                                      decoration: InputDecoration(
-                                        labelText: name,
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                .toList(growable: false),
-                          ),
-                        ],
-                        if (state.mode == 'parametric' ||
-                            state.mode == 'polar') ...<Widget>[
-                          SizedBox(height: tokens.controlGap),
-                          FormRow(
-                            children: <Widget>[
-                              TextField(
-                                controller: _parameterStartController,
-                                onChanged: (_) =>
-                                    _updateParameterRange(controller),
-                                decoration: InputDecoration(
-                                  labelText: nextEraText(
-                                    context,
-                                    'Parameter start',
-                                    '参数起点',
-                                  ),
-                                ),
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                      decimal: true,
-                                      signed: true,
-                                    ),
-                              ),
-                              TextField(
-                                controller: _parameterEndController,
-                                onChanged: (_) =>
-                                    _updateParameterRange(controller),
-                                decoration: InputDecoration(
-                                  labelText: nextEraText(
-                                    context,
-                                    'Parameter end',
-                                    '参数终点',
-                                  ),
-                                ),
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                      decimal: true,
-                                      signed: true,
-                                    ),
-                              ),
-                            ],
-                          ),
-                        ],
-                        SizedBox(height: tokens.controlGap),
-                        Row(
-                          children: <Widget>[
-                            if (state.mode == 'function')
-                              Expanded(
-                                child: TextField(
-                                  controller: _xController,
-                                  onChanged: controller.setX,
-                                  keyboardType:
-                                      const TextInputType.numberWithOptions(
-                                        decimal: true,
-                                      ),
-                                  decoration: InputDecoration(
-                                    labelText: l10n.argumentX,
-                                  ),
-                                ),
-                              ),
-                            if (state.mode == 'function')
-                              SizedBox(width: tokens.controlGap),
-                            FilledButton.icon(
-                              onPressed: state.isCalculating
-                                  ? null
-                                  : controller.evaluate,
-                              icon: const Icon(Icons.calculate_outlined),
-                              label: Text(l10n.evaluate),
-                            ),
-                            SizedBox(width: tokens.controlGap),
-                            IconButton(
-                              tooltip: l10n.clear,
-                              onPressed: () => _clearForm(controller),
-                              icon: const Icon(Icons.clear),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: tokens.controlGap),
-                        Text(
-                          l10n.quickExamples,
-                          style: Theme.of(context).textTheme.labelLarge,
-                        ),
-                        SizedBox(height: tokens.controlGap),
-                        Wrap(
-                          spacing: tokens.controlGap,
-                          runSpacing: tokens.controlGap,
-                          children:
-                              <String>['sin(x)', 'x^2', 'exp(-x^2)', '1/x']
-                                  .map(
-                                    (example) => ActionChip(
-                                      label: Text(example),
-                                      onPressed: () {
-                                        _expressionController.text = example;
-                                        controller.setMode('function');
-                                        controller.setExpression(example);
-                                      },
-                                    ),
-                                  )
-                                  .toList(growable: false),
-                        ),
-                      ],
-                    ),
+    final body = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        _ModeStrip(
+          mode: state.mode,
+          onChanged: (String value) {
+            final curves = value == 'multi'
+                ? (_splitCurves(state.expression).isEmpty
+                      ? <String>[state.expression.trim()]
+                      : _splitCurves(state.expression))
+                : _curveExpressions;
+            final expressionForMode = value == 'multi'
+                ? curves.join(';')
+                : state.mode == 'multi' && curves.isNotEmpty
+                ? curves.first
+                : state.expression;
+            setState(() {
+              _selectedPreset = null;
+              if (value == 'multi') {
+                _curveExpressions = curves;
+                _expressionController.clear();
+              } else {
+                _curveExpressions = <String>[];
+                _expressionController.text = expressionForMode;
+              }
+            });
+            controller.setMode(value);
+            controller.setExpression(expressionForMode);
+            unawaited(controller.evaluate());
+          },
+        ),
+        SizedBox(height: tokens.cardGap),
+        FeatureCard(
+          title: nextEraText(context, 'Expression', '表达式'),
+          icon: Icons.functions_rounded,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              if (state.mode != 'function' && state.mode != 'multi') ...<
+                Widget
+              >[
+                Text(
+                  _expressionLabel(context, state.mode),
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: scheme.onSurfaceVariant,
                   ),
                 ),
-                SizedBox(height: tokens.cardGap),
-                Semantics(
-                  liveRegion: true,
-                  child: Card(
-                    color: state.error == null
-                        ? scheme.secondaryContainer
-                        : scheme.errorContainer,
-                    child: Padding(
-                      padding: EdgeInsets.all(tokens.pagePadding),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Icon(
-                            state.error == null
-                                ? Icons.check_circle_outline
-                                : Icons.error_outline,
-                            color: state.error == null
-                                ? scheme.onSecondaryContainer
-                                : scheme.onErrorContainer,
+                const SizedBox(height: 8),
+              ],
+              if (state.mode == 'multi')
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: <Widget>[
+                    for (final entry in _curveExpressions.asMap().entries)
+                      InputChip(
+                        avatar: CircleAvatar(
+                          radius: 7,
+                          backgroundColor: scheme.primary,
+                        ),
+                        label: Text(entry.value),
+                        onDeleted: () => _removeCurve(entry.value, controller),
+                      ),
+                  ],
+                )
+              else
+                _ExpressionField(
+                  controller: _expressionController,
+                  hint: _hintForMode(state.mode),
+                  onChanged: (String value) {
+                    if (state.mode != 'multi') controller.setExpression(value);
+                    _scheduleAutoEvaluate(controller);
+                  },
+                  onSubmitted: controller.evaluate,
+                  onQuickInput: () => _openQuickInput(
+                    target: _expressionController,
+                    onChanged: controller.setExpression,
+                    onSubmit: controller.evaluate,
+                  ),
+                ),
+              if (state.mode == 'multi') ...<Widget>[
+                const SizedBox(height: 8),
+                _ExpressionField(
+                  controller: _expressionController,
+                  hint: _hintForMode(state.mode),
+                  onChanged: (String value) => _scheduleAutoEvaluate(controller),
+                  onSubmitted: () => _addCurve(controller),
+                  onQuickInput: () => _openQuickInput(
+                    target: _expressionController,
+                    onChanged: (_) {},
+                    onSubmit: () => _addCurve(controller),
+                  ),
+                  trailing: IconButton.filledTonal(
+                    tooltip: nextEraText(context, 'Add curve', '添加曲线'),
+                    onPressed: () => _addCurve(controller),
+                    icon: const Icon(Icons.add_rounded),
+                  ),
+                ),
+              ],
+              if (state.mode == 'parametric' || state.mode == 'vector') ...<
+                Widget
+              >[
+                const SizedBox(height: 10),
+                _ExpressionField(
+                  controller: _secondaryController,
+                  hint: 'sin(x)',
+                  label: nextEraText(context, 'y(t)', 'y(t)'),
+                  onChanged: controller.setSecondaryExpression,
+                  onSubmitted: controller.evaluate,
+                  onQuickInput: () => _openQuickInput(
+                    target: _secondaryController,
+                    onChanged: controller.setSecondaryExpression,
+                    onSubmit: controller.evaluate,
+                  ),
+                ),
+              ],
+              if (parameterNames.isNotEmpty) ...<Widget>[
+                const SizedBox(height: 14),
+                SectionHeader(
+                  title: nextEraText(context, 'Free parameters', '自由参数'),
+                  padding: EdgeInsets.zero,
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: tokens.controlGap,
+                  runSpacing: tokens.controlGap,
+                  children: <Widget>[
+                    for (final name in parameterNames)
+                      SizedBox(
+                        width: 148,
+                        child: TextField(
+                          controller: _parameterControllers[name],
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
                           ),
-                          SizedBox(width: tokens.controlGap),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  l10n.result,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium,
-                                ),
-                                SizedBox(height: tokens.controlGap / 2),
-                                Text(
-                                  state.isCalculating
-                                      ? l10n.computing
-                                      : state.error ??
-                                            state.value?.toStringAsPrecision(
-                                              10,
-                                            ) ??
-                                            l10n.noResult,
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                ),
-                                SizedBox(height: tokens.controlGap / 2),
-                                Text('${l10n.backend}: ${state.backend}'),
-                              ],
-                            ),
+                          onChanged: (String value) {
+                            final parsed = double.tryParse(value);
+                            if (parsed != null && parsed.isFinite) {
+                              controller.setParameter(name, parsed);
+                              _scheduleAutoEvaluate(controller);
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: name,
+                            isDense: true,
                           ),
-                        ],
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+              if (state.mode == 'parametric' || state.mode == 'polar') ...<
+                Widget
+              >[
+                const SizedBox(height: 10),
+                FormRow(
+                  children: <Widget>[
+                    TextField(
+                      controller: _parameterStartController,
+                      onChanged: (_) => _updateParameterRange(controller),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                        signed: true,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: nextEraText(
+                          context,
+                          'Parameter start',
+                          '参数起点',
+                        ),
+                        isDense: true,
                       ),
                     ),
+                    TextField(
+                      controller: _parameterEndController,
+                      onChanged: (_) => _updateParameterRange(controller),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                        signed: true,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: nextEraText(
+                          context,
+                          'Parameter end',
+                          '参数终点',
+                        ),
+                        isDense: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              if (state.mode == 'function') ...<Widget>[
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _xController,
+                  onChanged: controller.setX,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  decoration: InputDecoration(
+                    labelText: l10n.argumentX,
+                    isDense: true,
                   ),
                 ),
-                SizedBox(height: tokens.cardGap),
-                Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(tokens.pagePadding),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Row(
-                          children: <Widget>[
-                            Expanded(
-                              child: Text(
-                                l10n.plotPreview,
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ),
-                            IconButton(
-                              tooltip: nextEraText(
-                                context,
-                                'Full screen',
-                                '全屏',
-                              ),
-                              onPressed: _openFullscreenPlot,
-                              icon: const Icon(Icons.fullscreen),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: tokens.controlGap),
-                        Semantics(
-                          label: l10n.accessibilityPlotSummary(
-                            state.points.length,
-                            state.expression,
-                          ),
-                          child: SizedBox(
-                            height: tokens.plotMinHeight,
-                            child: InteractivePlotView(
-                              key: _plotViewKey,
-                              points: state.points,
-                              mode: state.mode,
-                              scheme: scheme,
-                              intersectionPoints: state.intersectionPoints,
-                              markedPoints: state.markedPoints,
-                              onMarkPoint: controller.addMarkedPoint,
-                              onRemoveMarkPoint: (point) =>
-                                  controller.removeNearestMarkedPoint(point),
-                              borderRadius: BorderRadius.circular(
-                                tokens.cornerMedium,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: tokens.controlGap),
-                        Wrap(
-                          spacing: tokens.controlGap / 2,
-                          runSpacing: tokens.controlGap / 2,
-                          alignment: WrapAlignment.spaceBetween,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: <Widget>[
-                            SizedBox(
-                              width: 220,
-                              child: Text(
-                                '${l10n.plotPoints(state.points.length)} · '
-                                '${nextEraText(context, 'Intersections', '交点')}: '
-                                '${state.intersectionPoints.length} · '
-                                '${nextEraText(context, 'Markers', '标记')}: '
-                                '${state.markedPoints.length}',
-                              ),
-                            ),
-                            if (state.mode == 'multi')
-                              TextButton.icon(
-                                onPressed: state.isCalculating
-                                    ? null
-                                    : controller.findIntersections,
-                                icon: const Icon(Icons.radar_outlined),
-                                label: Text(
-                                  nextEraText(
-                                    context,
-                                    'Find intersections',
-                                    '查找交点',
-                                  ),
-                                ),
-                              ),
-                            IconButton(
-                              tooltip: nextEraText(context, 'Zoom out', '缩小'),
-                              onPressed: () =>
-                                  _plotViewKey.currentState?.zoomBy(1 / 1.25),
-                              icon: const Icon(Icons.remove),
-                            ),
-                            IconButton(
-                              tooltip: nextEraText(context, 'Zoom in', '放大'),
-                              onPressed: () =>
-                                  _plotViewKey.currentState?.zoomBy(1.25),
-                              icon: const Icon(Icons.add),
-                            ),
-                            TextButton.icon(
-                              onPressed: _openFullscreenPlot,
-                              icon: const Icon(Icons.fullscreen),
-                              label: Text(
-                                nextEraText(context, 'Full screen', '全屏'),
-                              ),
-                            ),
-                            TextButton.icon(
-                              onPressed: _resetPlotView,
-                              icon: const Icon(Icons.center_focus_strong),
-                              label: Text(
-                                nextEraText(context, 'Reset view', '重置视图'),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: tokens.controlGap / 2),
-                        Text(
-                          nextEraText(
-                            context,
-                            'Tap to add a marker; long press to remove the nearest marker. Drag to move the axes, pinch or use the mouse wheel to zoom. Double-tap to zoom; use Reset view to restore the axes. Open Full screen to enlarge the plot.',
-                            '点击添加标记；长按删除最近标记。拖动画布可移动坐标轴，双指缩放或滚动鼠标滚轮可缩放。双击放大；点击“重置视图”恢复坐标范围。点击全屏可放大绘图。',
-                          ),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        if (state.intersectionPoints.isNotEmpty) ...<Widget>[
-                          SizedBox(height: tokens.controlGap / 2),
-                          Wrap(
-                            spacing: tokens.controlGap / 2,
-                            runSpacing: tokens.controlGap / 2,
-                            children: state.intersectionPoints
-                                .map(
-                                  (point) => Chip(
-                                    avatar: Icon(
-                                      Icons.radar_outlined,
-                                      size: 16,
-                                      color: scheme.onSecondaryContainer,
-                                    ),
-                                    label: Text(
-                                      '(${point.x.toStringAsPrecision(6)}, '
-                                      '${point.y.toStringAsPrecision(6)})',
-                                    ),
-                                  ),
-                                )
-                                .toList(growable: false),
-                          ),
-                        ],
-                        if (state.markedPoints.isNotEmpty) ...<Widget>[
-                          SizedBox(height: tokens.controlGap / 2),
-                          Wrap(
-                            spacing: tokens.controlGap / 2,
-                            runSpacing: tokens.controlGap / 2,
-                            children: state.markedPoints
-                                .asMap()
-                                .entries
-                                .map(
-                                  (entry) => Chip(
-                                    avatar: Icon(
-                                      Icons.place_outlined,
-                                      size: 16,
-                                      color: scheme.onErrorContainer,
-                                    ),
-                                    label: Text(
-                                      'M${entry.key + 1}: '
-                                      '(${entry.value.x.toStringAsPrecision(6)}, '
-                                      '${entry.value.y.toStringAsPrecision(6)})',
-                                    ),
-                                  ),
-                                )
-                                .toList(growable: false),
-                          ),
-                        ],
-                      ],
+              ],
+              const SizedBox(height: 14),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: FilledButton.icon(
+                      onPressed: state.isCalculating
+                          ? null
+                          : controller.evaluate,
+                      icon: state.isCalculating
+                          ? const SizedBox.square(
+                              dimension: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.auto_graph_rounded),
+                      label: Text(l10n.evaluate),
                     ),
                   ),
+                  const SizedBox(width: 10),
+                  IconButton.outlined(
+                    tooltip: l10n.clear,
+                    onPressed: () => _clearForm(controller),
+                    icon: const Icon(Icons.restart_alt_rounded),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: tokens.cardGap),
+        FeatureCard(
+          title: l10n.plotPreview,
+          icon: Icons.show_chart_rounded,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Semantics(
+                label: l10n.accessibilityPlotSummary(totalCount, state.expression),
+                child: SizedBox(
+                  height: plotHeight,
+                  child: PlotSurface(
+                    viewKey: _plotViewKey,
+                    borderRadius: BorderRadius.circular(tokens.cornerMedium),
+                  ),
                 ),
-              ]),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  StatusPill(
+                    icon: Icons.timeline_rounded,
+                    label: state.contours.isNotEmpty
+                        ? '${state.contours.length} ${nextEraText(context, 'levels', '条等值线')}'
+                        : l10n.plotPoints(totalCount),
+                  ),
+                  if (state.sampleBudget > 0)
+                    StatusPill(
+                      icon: Icons.speed_rounded,
+                      label: nextEraText(
+                        context,
+                        '${state.sampleCount}/${state.sampleBudget} samples',
+                        '${state.sampleCount}/${state.sampleBudget} 采样点',
+                      ),
+                    ),
+                  if (state.intersectionPoints.isNotEmpty)
+                    StatusPill(
+                      icon: Icons.radar_rounded,
+                      label:
+                          '${nextEraText(context, 'Intersections', '交点')}: '
+                          '${state.intersectionPoints.length}',
+                    ),
+                  AppTooltip(
+                    message: nextEraText(context, 'Zoom out', '缩小'),
+                    child: IconButton.filledTonal(
+                      onPressed: () => _plotViewKey.currentState?.zoomBy(1 / 1.25),
+                      icon: const Icon(Icons.remove_rounded),
+                    ),
+                  ),
+                  AppTooltip(
+                    message: nextEraText(context, 'Zoom in', '放大'),
+                    child: IconButton.filledTonal(
+                      onPressed: () => _plotViewKey.currentState?.zoomBy(1.25),
+                      icon: const Icon(Icons.add_rounded),
+                    ),
+                  ),
+                  AppTooltip(
+                    message: nextEraText(context, 'Fit to curve', '适配曲线'),
+                    child: IconButton.filledTonal(
+                      onPressed: () {
+                        final fit = state.suggestedViewport;
+                        if (fit != null) {
+                          _plotViewKey.currentState?.setViewport(fit);
+                        } else {
+                          _resetPlotView();
+                        }
+                      },
+                      icon: const Icon(Icons.fit_screen_rounded),
+                    ),
+                  ),
+                  AppTooltip(
+                    message: nextEraText(context, 'Reset view', '重置视图'),
+                    child: IconButton.filledTonal(
+                      onPressed: _resetPlotView,
+                      icon: const Icon(Icons.center_focus_strong_rounded),
+                    ),
+                  ),
+                  FilledButton.tonalIcon(
+                    onPressed: _openFullscreenPlot,
+                    icon: const Icon(Icons.fullscreen_rounded),
+                    label: Text(nextEraText(context, 'Full screen', '全屏')),
+                  ),
+                  if (state.mode == 'multi')
+                    TextButton.icon(
+                      onPressed: state.isCalculating
+                          ? null
+                          : controller.findIntersections,
+                      icon: const Icon(Icons.radar_rounded),
+                      label: Text(
+                        nextEraText(context, 'Find intersections', '查找交点'),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                nextEraText(
+                  context,
+                  'Drag to pan, pinch or scroll to zoom. '
+                      '${settings.tapToMark ? 'Tap to add a marker; long press to remove one. ' : ''}'
+                      'The curve is re-sampled for the visible range when auto-resampling is on.',
+                  '拖动画布平移，双指缩放或滚动滚轮缩放。'
+                      '${settings.tapToMark ? '点击添加标记，长按删除最近的标记。' : ''}'
+                      '开启“平移重采样”后，曲线会按可见范围重新采样。',
+                ),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: tokens.cardGap),
+        ResultCard(
+          label: l10n.result,
+          value: state.isCalculating
+              ? l10n.computing
+              : state.error ??
+                    (state.value == null
+                        ? l10n.noResult
+                        : formatNumber(
+                            state.value!,
+                            precision: settings.numberPrecision.digits,
+                          )),
+          error: state.error,
+          onCopy: state.value == null
+              ? null
+              : () => copyToClipboard(
+                  context,
+                  formatNumber(
+                    state.value!,
+                    precision: settings.numberPrecision.digits,
+                  ),
+                ),
+        ),
+        SizedBox(height: tokens.cardGap),
+        if (presets.isNotEmpty)
+          FeatureCard(
+            title: nextEraText(context, 'Presets', '预设'),
+            icon: Icons.auto_awesome_rounded,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                for (final preset in presets)
+                  ChoiceChip(
+                    label: Text(preset.label),
+                    selected: _selectedPreset == preset.label,
+                    onSelected: (_) => _applyPreset(preset, controller),
+                  ),
+              ],
             ),
           ),
-        ],
+        SizedBox(height: tokens.cardGap),
+        if (state.markedPoints.isNotEmpty)
+          FeatureCard(
+            title: nextEraText(context, 'Markers', '标记'),
+            icon: Icons.place_rounded,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: <Widget>[
+                for (final entry in state.markedPoints.asMap().entries)
+                  Chip(
+                    label: Text(
+                      'M${entry.key + 1}: '
+                      '(${entry.value.x.toStringAsPrecision(6)}, '
+                      '${entry.value.y.toStringAsPrecision(6)})',
+                    ),
+                    onDeleted: () => controller.removeNearestMarkedPoint(
+                      entry.value,
+                      tolerance: double.infinity,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+
+    final shortcuts = <ShortcutActivator, VoidCallback>{
+      const SingleActivator(LogicalKeyboardKey.keyI, control: true): () =>
+          _openQuickInput(
+            target: _expressionController,
+            onChanged: (String value) {
+              if (state.mode != 'multi') controller.setExpression(value);
+            },
+            onSubmit: state.mode == 'multi'
+                ? () => _addCurve(controller)
+                : controller.evaluate,
+          ),
+      const SingleActivator(LogicalKeyboardKey.keyI, meta: true): () =>
+          _openQuickInput(
+            target: _expressionController,
+            onChanged: (String value) {
+              if (state.mode != 'multi') controller.setExpression(value);
+            },
+            onSubmit: state.mode == 'multi'
+                ? () => _addCurve(controller)
+                : controller.evaluate,
+          ),
+      const SingleActivator(LogicalKeyboardKey.enter, control: true):
+          controller.evaluate,
+      const SingleActivator(LogicalKeyboardKey.enter, meta: true):
+          controller.evaluate,
+      const SingleActivator(LogicalKeyboardKey.keyR, control: true):
+          _resetPlotView,
+      const SingleActivator(LogicalKeyboardKey.equal, control: true): () =>
+          _plotViewKey.currentState?.zoomBy(1.25),
+      const SingleActivator(LogicalKeyboardKey.minus, control: true): () =>
+          _plotViewKey.currentState?.zoomBy(1 / 1.25),
+    };
+
+    final page = FeaturePageFrame(
+      title: l10n.plotting,
+      icon: Icons.insights_rounded,
+      subtitle: nextEraText(
+        context,
+        'Nine plot modes with adaptive sampling, complete curves and the same interaction on touch, mouse and keyboard.',
+        '九种绘图模式，自适应采样与完整曲线；触控、鼠标与键盘拥有一致交互。',
+      ),
+      child: body,
+    );
+
+    if (!settings.keyboardShortcuts) return page;
+    return CallbackShortcuts(bindings: shortcuts, child: page);
+  }
+}
+
+/// Horizontally scrollable mode selector.
+///
+/// Nine modes do not fit a `SegmentedButton` on a phone, and the adaptive
+/// Material 3 Expressive chips keep every mode one tap away with a visible icon
+/// instead of hiding them behind an overflow menu.
+class _ModeStrip extends StatelessWidget {
+  const _ModeStrip({required this.mode, required this.onChanged});
+
+  final String mode;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final labels = <String, String>{
+      'function': nextEraText(context, 'y = f(x)', 'y = f(x)'),
+      'multi': nextEraText(context, 'Multi-curve', '多曲线'),
+      'parametric': nextEraText(context, 'Parametric', '参数曲线'),
+      'polar': nextEraText(context, 'Polar', '极坐标'),
+      'implicit': nextEraText(context, 'Implicit', '隐式曲线'),
+      'surface': nextEraText(context, '3D surface', '三维曲面'),
+      'contour': nextEraText(context, 'Contour', '等高线'),
+      'direction': nextEraText(context, 'Direction field', '方向场'),
+      'vector': nextEraText(context, 'Vector field', '向量场'),
+    };
+    final chips = <Widget>[
+      for (final value in _plotModes)
+        ChoiceChip(
+          avatar: Icon(
+            _modeIcon(value),
+            size: 18,
+            color: value == mode
+                ? Theme.of(context).colorScheme.onSecondaryContainer
+                : Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          label: Text(labels[value] ?? value),
+          selected: value == mode,
+          showCheckmark: false,
+          onSelected: (_) => onChanged(value),
+        ),
+    ];
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        // Wide windows show every mode at once; narrow ones scroll instead of
+        // wrapping into a tall stack that pushes the plot off-screen.
+        if (constraints.maxWidth >= 900) {
+          return Wrap(spacing: 8, runSpacing: 8, children: chips);
+        }
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            children: <Widget>[
+              for (final chip in chips) ...<Widget>[chip, const SizedBox(width: 8)],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Monospace expression field with a quick-input affordance.
+class _ExpressionField extends StatelessWidget {
+  const _ExpressionField({
+    required this.controller,
+    required this.onChanged,
+    required this.onSubmitted,
+    required this.onQuickInput,
+    this.hint,
+    this.label,
+    this.trailing,
+  });
+
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onSubmitted;
+  final VoidCallback onQuickInput;
+  final String? hint;
+  final String? label;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      onSubmitted: (_) => onSubmitted(),
+      keyboardType: TextInputType.text,
+      textInputAction: TextInputAction.go,
+      autocorrect: false,
+      enableSuggestions: false,
+      style: const TextStyle(fontFamily: 'monospace', fontSize: 16),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        suffixIcon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            IconButton(
+              tooltip: nextEraText(context, 'Quick input', '快捷输入'),
+              onPressed: onQuickInput,
+              icon: const Icon(Icons.dialpad_rounded),
+            ),
+            ?trailing,
+          ],
+        ),
       ),
     );
   }

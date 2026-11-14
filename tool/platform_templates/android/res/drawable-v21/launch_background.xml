@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same artwork for API 21+, where a themed color is available. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/sc_splash_background" />
+    <item
+        android:drawable="@drawable/sc_splash_glyph"
+        android:gravity="center" />
+</layer-list>
