@@ -300,7 +300,6 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget build(BuildContext context) {
     final destinations = _destinations(context);
     final selected = _selectedIndex(widget.location, destinations);
-    final tokens = SuperCalcDesignTokens.of(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -325,25 +324,16 @@ class _AppShellState extends ConsumerState<AppShell> {
               ? selected
               : primaryCount;
           return Scaffold(
-            body: AnimatedSwitcher(
-              duration: tokens.scaled(const Duration(milliseconds: 260)),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              transitionBuilder: (child, animation) => FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 0.015),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
-                ),
-              ),
-              child: KeyedSubtree(
-                key: ValueKey<String>(widget.location),
-                child: widget.child,
-              ),
-            ),
+            // `widget.child` is go_router's nested `Navigator` for the shell,
+            // and that navigator is keyed with a `GlobalObjectKey`. Wrapping it
+            // in an `AnimatedSwitcher` kept the outgoing and the incoming copy
+            // of the *same* navigator alive at once during the cross-fade,
+            // which trips the duplicate-global-key guard: the framework moves
+            // the keyed subtree to the new slot, the old slot never updates,
+            // and the whole body is truncated (a blank page until the next
+            // rebuild). The navigator already animates between destinations
+            // through `pageTransitionsTheme`, so the body stays unwrapped.
+            body: widget.child,
             bottomNavigationBar: _FloatingNavigationBar(
               destinations: compact,
               selectedIndex: compactSelected,
@@ -370,17 +360,10 @@ class _AppShellState extends ConsumerState<AppShell> {
                 onSelected: (index) => _go(destinations[index].path),
               ),
               Expanded(
-                child: AnimatedSwitcher(
-                  duration: tokens.scaled(const Duration(milliseconds: 260)),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  transitionBuilder: (child, animation) =>
-                      FadeTransition(opacity: animation, child: child),
-                  child: KeyedSubtree(
-                    key: ValueKey<String>(widget.location),
-                    child: widget.child,
-                  ),
-                ),
+                // Same reasoning as the compact layout: this slot holds the
+                // shell's nested navigator, so it must not be duplicated by a
+                // cross-fade. Page transitions live in the theme instead.
+                child: widget.child,
               ),
             ],
           ),
